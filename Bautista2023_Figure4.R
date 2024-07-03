@@ -1,4 +1,4 @@
-#Main Figures of the Manuscript Bautista_2023
+#Main Figures of the Manuscript Bautista_2024
 
 ##Figure 4###
 
@@ -111,7 +111,7 @@ library(vcfR)
 #################
 
 ####Set directory####
-#Define the directory where you save all the data from Bautista_2023#################
+#Define the directory where you save all the data from Bautista_2024#################
 setwd("")
 #################
 
@@ -124,7 +124,6 @@ C_LOH_track_hybrid<-read_csv("4C_LOH_track_hybrid2.csv")
 E_Homozygous_Heterozygous_proportions<-read_csv("4E_Homozygous_Heterozygous_proportions.csv")
 E_Homozygous_Heterozygous_proportions_medians<-read_csv("4E_Homozygous_Heterozygous_proportions_medians.csv")
 F_Growth_Hybrids<-read_csv("4F_Growth_Hybrids.csv")
-G_fitness_PDR1<-read_csv("4G_fitness_PDR1.csv")
 ################
 
 ############Figure 4A############
@@ -146,7 +145,7 @@ Fig4B<- B_CRISPR_test%>%
   geom_boxplot(aes(alpha=0.4,fill=Mutation))+
   geom_point(colour="black",pch=21,size=2, aes(fill=Mutation))+
   facet_grid(Day~factor(Condition.y, levels=c('NQO_4μM','NQO_8μM','NQO_10μM','Control')))+
-  scale_fill_manual(values = c("gray","mediumpurple3","mediumpurple3","gray","#21908CFF"))+
+  scale_fill_manual(values = c("gray30","mediumpurple3","mediumpurple3","gray","#21908CFF"))+
   scale_x_discrete(breaks=c("1_WTa_WTalpha","7c_M308Ia_WTalpha","3b_WTa_M308Ialpha","8c_M308Ia_STOPalpha","9d_M308Ia_M308Ialpha"),
                    limits=c("1_WTa_WTalpha","7c_M308Ia_WTalpha","3b_WTa_M308Ialpha","8c_M308Ia_STOPalpha","9d_M308Ia_M308Ialpha"))+
   ylab("Growth rate (OD/hour)")+
@@ -159,12 +158,12 @@ Fig4B<- B_CRISPR_test%>%
            family = "", fontface = 3, size=5) +
   theme(strip.placement = "outside",
         strip.text = element_blank(),
-        axis.title = element_text(size=17, face = "bold"),
+        axis.title = element_text(size=16, face = "bold"),
         strip.background = element_blank(),
         axis.text.x = element_blank(),
         axis.title.x=element_blank(),
-        axis.text.y = element_text(size=14,face = "bold"),
-        axis.title.y = element_text(size=16,face = "bold"),
+        axis.text.y = element_text(size=12,face = "bold"),
+        axis.title.y = element_text(size=15,face = "bold"),
         panel.background = element_blank(),
         legend.position = "none",
         legend.text = element_text(size=8),
@@ -243,7 +242,7 @@ cld(inter.test1)
 Fig4E<- E_Homozygous_Heterozygous_proportions%>% 
   ggplot(aes(y=as.numeric(median),x=Genotype)) +
   scale_shape_identity() + 
-  geom_point(aes(col=Mutation, alpha=0.4),size=2) +
+  geom_point(colour="black",pch=21,size=2, aes(fill=Mutation))+
   geom_boxplot(aes(alpha=0.4,fill=Mutation))+
   geom_label(data = E_Homozygous_Heterozygous_proportions_medians, aes(x = Genotype, y =median, label =  median),fontface = "bold",
              size = 5)+
@@ -276,6 +275,7 @@ Fig4E<- E_Homozygous_Heterozygous_proportions%>%
         axis.title.x =  element_blank(),
         legend.position = "none")
 
+
 #We are importing the graph because it has undergone some modifications in BioRender:
 Fig4E<- readPNG("Figure4E.png")
 Fig4E <- rasterGrob(Fig4E,width = unit(1, "npc"), height = unit(1, "npc"))
@@ -289,8 +289,42 @@ model_anova <- aov(rval ~ Mutation, data = hybrids_nqo)
 anova_resultados <- anova(model_anova)
 print(anova_resultados)
 
-tukey_resultados <- TukeyHSD(modelo_anova)
+tukey_resultados <- TukeyHSD(model_anova)
 print(tukey_resultados)
+
+hybrids_nqo$Mutation <- as.factor(hybrids_nqo$Mutation)
+amod <- aov(rval~Mutation, data=hybrids_nqo)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Mutation= "Tukey"))
+summary(amod)
+summary(inter.test1)
+cld(inter.test1)
+
+
+hybrids_nqo<-dplyr::filter(F_Growth_Hybrids,Condition.y=="NQO_4μM")
+hybrids_nqo<-filter(hybrids_nqo, Line==13)
+
+hybrids_nqo$Mutation <- as.factor(hybrids_nqo$Mutation)
+amod <- aov(rval~Mutation, data=hybrids_nqo)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Mutation= "Tukey"))
+summary(amod)
+summary(inter.test1)
+cld(inter.test1)
+
+hybrids_nqo<-dplyr::filter(F_Growth_Hybrids,Condition.y=="NQO_4μM")
+hybrids_nqo<-filter(hybrids_nqo, Line==28)
+
+hybrids_nqo$Mutation <- as.factor(hybrids_nqo$Mutation)
+amod <- aov(rval~Mutation, data=hybrids_nqo)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Mutation= "Tukey"))
+summary(amod)
+summary(inter.test1)
+cld(inter.test1)
+
+hybrids_nqo<-dplyr::filter(F_Growth_Hybrids,Condition.y=="NQO_4μM")
+hybrids_nqo<-filter(hybrids_nqo, Line==30)
 
 hybrids_nqo$Mutation <- as.factor(hybrids_nqo$Mutation)
 amod <- aov(rval~Mutation, data=hybrids_nqo)
@@ -302,19 +336,27 @@ cld(inter.test1)
 
 Fig4F <- F_Growth_Hybrids %>% dplyr:::filter(Condition.y=="NQO_4μM")%>% 
   ggplot(aes(x=Mutation, y=rval)) +
-  geom_boxplot(colour="black",outlier.shape = NA,aes(colour="black",fill=Mutation,alpha=0.7, group=interaction(Mutation)))+
-  scale_color_manual(values = c("Heterozygous" = "mediumpurple3", "Homozygous" = "#21908CFF", "No mutation" = "gray30"),
-                     labels = c("Heterozygous" = "Heterozygous PDR1 mutation","No mutation" = "No PDR1 mutation", "Homozygous" = "Homozygous PDR1 mutation")) +
-  scale_fill_manual(values = c("Heterozygous" = "mediumpurple3", "Homozygous" = "#21908CFF", "No mutation" = "gray30"),
-                    labels = c("Heterozygous" = "Heterozygous PDR1 mutation","No mutation" = "No PDR1 mutation", "Homozygous" = "Homozygous PDR1 mutation")) +
+  facet_grid(Line ~ .) +
+  geom_point(colour="black",pch=21,size=2, aes(fill=Mutation))+
+  geom_boxplot(aes(alpha=0.4,fill=Mutation))+
+  scale_color_manual(values = c("Heterozygous" = "mediumpurple3",
+                                "Homozygous" = "#21908CFF",
+                                "No mutation" = "gray30"),
+                     labels = c("Heterozygous" = "Heterozygous PDR1 mutation",
+                                "No mutation" = "No PDR1 mutation",
+                                "Homozygous" = "Homozygous PDR1 mutation")) +
+  scale_fill_manual(values = c("Heterozygous" = "mediumpurple3",
+                               "Homozygous" = "#21908CFF",
+                               "No mutation" = "gray30"),
+                    labels = c("Heterozygous" = "Heterozygous PDR1 mutation",
+                               "No mutation" = "No PDR1 mutation",
+                               "Homozygous" = "Homozygous PDR1 mutation")) +
   ylab("Growth rate (OD/hour)") +theme_bw() +
   theme(legend.position = "none")+
-  annotate("text",
-           y = c(0.65),
-           x = c(0.8),
-           label = c("p < 0.0001"),
-           family = "", fontface = 3, size=5) +
-  ylim(0,0.65)+
+  geom_text(data = data.frame(Mutation = 0.8, rval = 0.7, Line = c(13,28,30),
+                              label = c("p < 0.0001", "p < 0.0001","p < 0.001")),
+            aes(label = label,family = "", fontface = 3, size=5))+
+  ylim(0,0.7)+
   theme(axis.title = element_text(size=20, face = "bold"),
         axis.text.y = element_text(size=16,face = "bold"),
         axis.title.x = element_blank(),
@@ -356,7 +398,6 @@ Fig4C_label<- plot_grid(Fig4C,labels="c",label_size=38)
 Fig4D_label<- plot_grid(Fig4D,labels="d",label_size=38)
 Fig4E_label<- plot_grid(Fig4E,labels="e",label_size=38)
 Fig4F_label<- plot_grid(Fig4F,labels="f",label_size=38)
-Fig4G_label<- plot_grid(Fig4G,labels="g",label_size=38)
 
 Figure4top<-plot_grid(Fig4A_label,Fig4B_label,nrow=2,rel_heights = c(0.62,0.57))
 Figure4med2<-plot_grid(Fig4E_label,Fig4F_label,nrow=1,rel_widths = c(1.2,1))
@@ -367,9 +408,9 @@ Figure4c<-plot_grid(Figure4,Fig4C_label,nrow=2,rel_heights = c(1,0.35))
 Figure4leg<-plot_grid(leg,Figure4c,nrow=2,rel_heights = c(0.4,7))
 
 #Save the image in the previously set working directory
-ggsave (plot = Figure4leg, filename = "Bautista2023_Figure4_low_quality.jpg", units = "cm", device = "jpg",width =65, height =55, dpi = 300)
-ggsave (plot = Figure4leg, filename = "Bautista2023_Figure4.jpg", units = "cm", device = "jpg",width =65, height =55, dpi = 1000)
-ggsave (plot = Figure4leg, filename = "Bautista2023_Figure4.png", units = "cm", device = "png",width =65, height =55, dpi = 1000, bg = "white")
-ggsave (plot = Figure4leg, filename = "Bautista2023_Figure4.svg", units = "cm", device = "svg",width =65, height =55, dpi = 800)
-ggsave (plot = Figure4leg, filename = "Bautista2023_Figure4.pdf", units = "cm", device = "pdf",width =65, height =55, dpi = 1000, bg = "white")
+ggsave (plot = Figure4leg, filename = "Bautista2024_Figure4_low_quality.jpg", units = "cm", device = "jpg",width =65, height =55, dpi = 300)
+ggsave (plot = Figure4leg, filename = "Bautista2024_Figure4.jpg", units = "cm", device = "jpg",width =65, height =55, dpi = 1000)
+ggsave (plot = Figure4leg, filename = "Bautista2024_Figure4.png", units = "cm", device = "png",width =65, height =55, dpi = 1000, bg = "white")
+ggsave (plot = Figure4leg, filename = "Bautista2024_Figure4.svg", units = "cm", device = "svg",width =65, height =55, dpi = 800)
+ggsave (plot = Figure4leg, filename = "Bautista2024_Figure4.pdf", units = "cm", device = "pdf",width =65, height =55, dpi = 1000, bg = "white")
 ##########
