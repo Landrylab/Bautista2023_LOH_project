@@ -1,4 +1,4 @@
-##Supplementary Figures Bautista_2023###
+##Supplementary Figures Bautista_2024###
 
 #In order to place the figures in the same folder as the data tables,
 #you need to specify the name of this directory in the 'Set Directory' section below.
@@ -109,7 +109,7 @@ library(vcfR)
 #################
 
 ####Set directory####
-#Define the directory where you save all the data from Bautista_2023
+#Define the directory where you save all the data from Bautista_2024
 setwd("")
 #################
 
@@ -117,17 +117,17 @@ setwd("")
 Supp_coverage <- read_csv("1Supp_coverage.csv")
 Supp_ploidy <- read.csv("2Supp_ploidy.csv",stringsAsFactors = F)
 Supp_ploidy_heatmap <- read.csv("2Supp_ploidy_heatmap.csv")
-Supp_genomics <- read_csv("3Supp_growth.csv")
 Supp_data_aneuploidies<- read.csv("3Supp_data_aneuploidies.csv")
-Supp_Table_counts_aneuploidies <- read.csv("3Supp_Table_counts_aneuploidies.csv")
-Supp_Aneuploidy_chrom <- read_excel("3Supp_Aneuploidy_chrom.xlsx")
-Supp_new_genome3c_new<-read.csv("3Supp_new_genome3c_new.csv")
-Supp4_GO <- image_read_pdf("4Supp_GO.pdf")
-Supp_raw_cov<-read.csv("5Supp_raw_cov.csv")
-Supp_growth_plasmids<-read.csv("6Supp_growth_plasmids.csv")
-Supp_growth_curves_plasmids<-read.csv("6Supp_growth_curves_plasmids.csv")
-Supp_growth_plasmids2<-read.csv("6Supp_growth_plasmids2.csv")
-Supp_growth_curves_plasmids2<-read.csv("6Supp_growth_curves_plasmids2.csv")
+Supp_genomics <- read_csv("4Supp_growth.csv")
+Supp_Table_counts_aneuploidies <- read.csv("4Supp_Table_counts_aneuploidies.csv")
+Supp_Aneuploidy_chrom <- read_excel("4Supp_Aneuploidy_chrom.xlsx")
+Supp_new_genome3c_new<-read.csv("4Supp_new_genome3c_new.csv")
+Supp4_GO <- image_read_pdf("5Supp_GO.pdf")
+Supp_raw_cov<-read.csv("6Supp_raw_cov.csv")
+Supp_growth_plasmids<-read.csv("7Supp_growth_plasmids.csv")
+Supp_growth_curves_plasmids<-read.csv("7Supp_growth_curves_plasmids.csv")
+Supp_growth_plasmids2<-read.csv("7Supp_growth_plasmids2.csv")
+Supp_growth_curves_plasmids2<-read.csv("7Supp_growth_curves_plasmids2.csv")
 ##########
 
 ############Figure Supplementary 1############
@@ -234,12 +234,7 @@ FigB <- Supp_coverage %>%
         legend.text = element_text(size=12),
         axis.title.x = element_blank(),
         legend.position="none",
-        axis.text= element_text(size=9)) +
-  annotate("text",
-           y = c(450),
-           x = c(1),
-           label = c("p < 0.0001"),
-           family = "", fontface = 3, size=3) 
+        axis.text= element_text(size=9))
 #################
 ############Assemble and save Supplementary Figure 1############
 FigA_label <- plot_grid(FigA, labels = c("a"),label_size=20)
@@ -256,81 +251,13 @@ ggsave (plot = Fig1leg, filename = "Supplementary_Fig1.pdf", units = "cm", devic
 #################
 
 ############Figure Supplementary 2############
-fdata <- Supp_ploidy
+conto <- Supp_ploidy_heatmap %>% filter(replicate=="Control")
 
-x<-fdata%>%filter(!(plate=="A"&evolved=="4n"))
-x<-x%>%filter(!(plate=="C"&evolved=="4n"))
-x<-x%>%filter(!(plate=="B"&evolved=="2n"&replicate=="Control"&other_info=="WT ploidy2"))
-x<-x%>%filter(!(plate=="B"&evolved=="2n"&replicate=="Control"))
-x<-x%>%filter(!(plate=="A"&evolved=="2n"&replicate=="Control"))
-x<-x%>%filter(!(plate=="C"&evolved=="2n"&specie=="Spar haploid nat alfa"))
-x<-x%>%filter(!(plate=="A"&evolved=="3n"))
-x<-x%>%filter(!(plate=="C"&evolved=="3n"))
-x<-x%>%filter(!(plate=="A"&evolved=="n"))
-x<-x%>%filter(!(plate=="B"&evolved=="n"))
-x<-x%>%filter(!(plate=="C"&evolved=="n"&specie=="Spar haploid hyg alfa"))
-x <- filter()
-
-#Graphs comparing evolved vs ancestor vs control
-hybrid <- x %>% filter(specie=="Hybrid")
-scer <- x %>% filter(specie=="Scer")
-spar <- x %>% filter(specie=="Spar")
-
-x1<- rbind(hybrid,scer,spar)
-x2 <- filter(x1, replicate!="Control")
-x2$replicate <- as.numeric(x2$replicate)
-
-#Heatmap choosing the line complete 
-AB1 <- filter(x2, specie=="Scer" & replicate=="11" & evolved=="Evolved_control")
-AB2 <- filter(x2, specie=="Scer" & replicate=="11" & evolved=="Ancestor")
-AB3 <- filter(x2, specie=="Scer" & replicate=="11" & evolved=="Evolved_NQO")
-AB4 <- filter(x, evolved =="2n")
-AB5 <- filter(x, evolved =="3n")
-AB<- rbind(AB1,AB2,AB3,AB4,AB5)
-AB$log_FL1A = log1p(AB$FL1_A)
-
-AB<- rbind(AB3,AB5)
-
-#Get counts      
-newdat <- AB
-newdat$log_FL1A = log1p(newdat$FL1_A)
-
-#First I need to calculate the interval
-newdat2 <- newdat %>% 
-  group_by(plate,well) %>% 
-  mutate(LMH = cut(log(FL1_H), breaks = 100, labels = FALSE))
-
-newdat3 <-newdat2 %>% 
-  group_by(plate,well,LMH,evolved,specie,replicate,other_info,same_Replicate) %>% dplyr:::summarise(n()) %>% ungroup()
-
-colnames(newdat3)[9]  <- "counts"
-
-newdat4 <- filter(newdat3, counts > 100)
-newdat4$LMH <- as.numeric(newdat4$LMH)
-
-#Do this for all the samples
-x$log_FL1A = log1p(x$FL1_A)
-
-newdat <- x %>% 
-  group_by(specie,replicate,evolved,well,plate) %>% 
-  mutate(LMH = cut(log_FL1A, breaks = 500, labels = FALSE))
-
-newdat <-newdat %>% 
-  group_by(specie,replicate,evolved,well,plate,LMH) %>% dplyr:::summarise(n()) %>% ungroup()
-
-colnames(newdat)[7]  <- "counts"
-
-x$same_rep = paste(x$specie, x$replicate, sep="_")
-newdat$same_rep = paste(newdat$specie, newdat$replicate, sep="_")
-
-con <- filter(newdat, replicate=="Control")
 neworder <- c("n","2n","3n","4n")
-
-iris2 <- arrange(transform(con,
+iris2 <- arrange(transform(conto,
                            evolved=factor(evolved,levels=neworder)),evolved)
 
 legend_title <- "Cell count (Density)"
-
 #Graphs control
 con2<- iris2 %>% ggplot(aes(LMH, evolved))+
   geom_tile(aes(fill = counts)) + scale_fill_gradient(legend_title,low = 'white', high = 'darkblue',limits=c(0,800)) +
@@ -403,7 +330,6 @@ Supp_ploidy_heatmap$specie <- factor(Supp_ploidy_heatmap$specie,
                                      labels = c("bolditalic(S.cerevisiae)",
                                                 "bolditalic(S.paradoxus)",
                                                 "bold(Hybrid)"))
-
 
 Supp_ploidy_heatmap$evolved <- factor(Supp_ploidy_heatmap$evolved,
                                       labels = c("bold(Ancestor)",
@@ -487,17 +413,110 @@ Samples_heatmap2 <- Samples_heatmap +  theme(panel.spacing.x = unit(0.52, "cm"))
 #################
 ############Assemble and save Supplementary Figure 2############
 leg <- plot_grid(con2,con3,con3, ncol = 4,rel_widths = c(13.6,12.2,12,1.6))
-Fig3SuppA <- plot_grid(leg,Samples_heatmap2, nrow = 2, rel_heights = c(2,10))
-Fig3SuppAleg <- plot_grid(Fig3SuppA,legheatmap, nrow = 1, rel_widths  = c(10,2))
+Fig2SuppA <- plot_grid(leg,Samples_heatmap2, nrow = 2, rel_heights = c(2,10))
+Fig2SuppAleg <- plot_grid(Fig2SuppA,legheatmap, nrow = 1, rel_widths  = c(10,2))
 
-ggsave (plot = Fig3SuppAleg, filename = "Supplementary_Fig2_low_quality.jpg", units = "cm", device = "jpg",width = 25, height = 25, dpi = 300,bg = "white")
-ggsave (plot = Fig3SuppAleg, filename = "Supplementary_Fig2.png", units = "cm", device = "png",width = 25, height =25, dpi = 1000,bg = "white")
-ggsave (plot = Fig3SuppAleg, filename = "Supplementary_Fig2.jpg", units = "cm", device = "jpg",width = 25, height = 25, dpi = 1000,bg = "white")
-ggsave (plot = Fig3SuppAleg, filename = "Supplementary_Fig2.svg", units = "cm", device = "svg",width = 25, height =25, dpi = 1000,bg = "white")
-ggsave (plot = Fig3SuppAleg, filename = "Supplementary_Fig2.pdf", units = "cm", device = "pdf",width = 25, height =25, dpi = 1000,bg = "white")
+ggsave (plot = Fig2SuppAleg, filename = "Supplementary_Fig2_low_quality.jpg", units = "cm", device = "jpg",width = 25, height = 25, dpi = 300,bg = "white")
+ggsave (plot = Fig2SuppAleg, filename = "Supplementary_Fig2.png", units = "cm", device = "png",width = 25, height =25, dpi = 1000,bg = "white")
+ggsave (plot = Fig2SuppAleg, filename = "Supplementary_Fig2.jpg", units = "cm", device = "jpg",width = 25, height = 25, dpi = 1000,bg = "white")
+ggsave (plot = Fig2SuppAleg, filename = "Supplementary_Fig2.svg", units = "cm", device = "svg",width = 25, height =25, dpi = 1000,bg = "white")
+ggsave (plot = Fig2SuppAleg, filename = "Supplementary_Fig2.pdf", units = "cm", device = "pdf",width = 25, height =25, dpi = 1000,bg = "white")
 #################
 
 ############Figure Supplementary 3############
+###Boxplot aneuploidies
+#Define some elements for the graph
+toexpr<-function(x) {
+  getfun <- function(x) {
+    ifelse(x=="Hybrid", "plain", "italic")
+  }
+  as.expression(unname(Map(function(f,v) substitute(f(v), list(f=as.name(f), v=as.character(v))), getfun(x), x)))
+}
+
+#Fisher test
+scer <- dplyr:::filter(Supp_Table_counts_aneuploidies,Strain=="1Scer")
+spar <- dplyr:::filter(Supp_Table_counts_aneuploidies,Strain=="2Spar")
+hyb <- dplyr:::filter(Supp_Table_counts_aneuploidies,Strain=="3Hybrid")
+
+#For S.cerevisiae
+#        With aneu    Without aneu
+#control    0               29
+#NQO        3               26
+m_scer <- matrix(c(0,3,29,26),nrow = 2,ncol=2,byrow=FALSE)
+fisher.test(m_scer)
+#p-value: 0.2368
+
+#For S.paradoxus
+#        With aneu    Without aneu
+#control   0               30
+#NQO       6               24
+m_spar <- matrix(c(0,6,30,24),nrow = 2,ncol=2,byrow=FALSE)
+fisher.test(m_spar)
+#p-value: 0.02372
+
+#For Hybrid
+#        With aneu    Without aneu
+#control   1               25
+#NQO       4               22
+m_hyb <- matrix(c(1,4,25,22),nrow = 2,ncol=2,byrow=FALSE)
+fisher.test(m_hyb)
+#p-value: 0.3497
+
+B_Table_counts_aneuploidies_filtered <- Supp_Table_counts_aneuploidies %>%
+  dplyr:::filter(!(Strain=="1Scer" & Replicate==16))
+B_Table_counts_aneuploidies_filtered <- B_Table_counts_aneuploidies_filtered %>%
+  dplyr:::filter(!(Strain=="3Hybrid" & Replicate==1))
+B_Table_counts_aneuploidies_filtered <- B_Table_counts_aneuploidies_filtered %>%
+  dplyr:::filter(!(Strain=="3Hybrid" & Replicate==10))
+B_Table_counts_aneuploidies_filtered <- B_Table_counts_aneuploidies_filtered %>%
+  dplyr:::filter(!(Strain=="3Hybrid" & Replicate==21))
+B_Table_counts_aneuploidies_filtered <- B_Table_counts_aneuploidies_filtered %>%
+  dplyr:::filter(!(Strain=="3Hybrid" & Replicate==25))
+
+FigSupp3 <- ggplot(B_Table_counts_aneuploidies_filtered, aes(x = interaction(Type,Strain), y = counts,fill=Strain))+
+  geom_boxplot(outlier.shape = NA,aes(fill=as.factor(Strain)))+
+  geom_jitter(colour="black",pch=21,height = 0, size=3,alpha=0.7, aes(fill=as.factor(Strain)))+
+  ylab("Number of \n aneuploidies / line")+
+  xlab("Genotype")+
+  scale_fill_manual(values=c("green4", "dodgerblue1", "#FF9999"), 
+                    labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
+  scale_x_discrete("", labels=c("Evolved in \n control","Evolved in \n UV mimetic",
+                                "Evolved in \n control","Evolved in \n UV mimetic",
+                                "Evolved in \n control","Evolved in \n UV mimetic"))+
+  theme_bw(base_size=24) +
+  geom_segment(aes(x=3, xend=4, y=1.3, yend=1.3)) +
+  annotate("text",
+           y = c(1.45),
+           x = c(3.5),
+           label = c("p < 0.05"),
+           family = "", fontface = 3, size=4) +
+  scale_y_continuous(breaks = c(0, 1, 2))+
+  theme_bw(base_size=24) +
+  theme(strip.background = element_blank(),
+        panel.background = element_blank(),
+        strip.text.x = element_blank(),
+        plot.title = element_text(size=15, hjust=0, face = "bold", color="black"),
+        axis.text.x = element_text(size = 11, color="black",face = "bold"),
+        axis.text.y = element_text(size = 13, color="black"),
+        axis.title = element_text(size = 15,face="bold"),
+        legend.position = "top",
+        legend.direction = "horizontal",
+        legend.text = element_text(size=14),
+        legend.title = element_text(size=14),
+        legend.margin = margin(-10, -10,-6,-2))+
+  guides(fill = guide_legend(title = " "))
+
+#################
+############Assemble and save Supplementary Figure 3############
+ggsave (plot = FigSupp3, filename = "Supplementary_Fig3_low_quality.jpg", units = "cm", device = "jpg",width = 25, height = 10, dpi = 300,bg = "white")
+ggsave (plot = FigSupp3, filename = "Supplementary_Fig3.png", units = "cm", device = "png",width = 25, height =10, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp3, filename = "Supplementary_Fig3.jpg", units = "cm", device = "jpg",width = 25, height = 10, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp3, filename = "Supplementary_Fig3.svg", units = "cm", device = "svg",width = 25, height =10, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp3, filename = "Supplementary_Fig3.pdf", units = "cm", device = "pdf",width = 25, height =10, dpi = 1000,bg = "white")
+#################
+
+
+############Figure Supplementary 4############
 genomics1 <- dplyr:::filter(Supp_genomics,condition=="NQO")
 genomics1 <- dplyr:::filter(genomics1,day==2)
 genomics1$Replicate<-as.numeric(genomics1$Replicate)
@@ -561,12 +580,11 @@ ggscatter(NQO_hyb, x = "counts", y = "percentage",
 
 legend_title <- " "
 
-FigSupp3 <- FITNESS_LOH %>% filter(Type=="Evolved_NQO")%>%
+FigSupp4 <- FITNESS_LOH %>% filter(Type=="Evolved_NQO")%>%
   ggplot(aes(x=as.factor(counts),y = percentage))+
   stat_smooth(method="lm", alpha=0.1,aes(group=Specie,col=Specie))+
-  geom_point(position=position_jitterdodge(seed=2, jitter.width=0.2), 
-             pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2)+
-  xlab("Number of aneuploidies / line")+ylab("Fitness gain (%)")+
+  geom_jitter(pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2,width = 0.1, height = 0.1)+
+  xlab("Number of aneuploidies / line")+ylab("Increase in growth rate (%)")+
   border()  +
   scale_fill_manual(legend_title,values=c("green4","dodgerblue1","#FF9999"), 
                     labels = toexpr(c("S. cerevisiae", "S. paradoxus","Hybrid"))) +
@@ -601,36 +619,36 @@ FigSupp3 <- FITNESS_LOH %>% filter(Type=="Evolved_NQO")%>%
            family = "", fontface = 3, size=3, col="lightpink4")+
   stat_smooth(method="lm", alpha=0.2) 
 #################
-############Assemble and save Supplementary Figure 3############
-ggsave (plot = FigSupp3, filename = "Supplementary_Fig3_low_quality.jpg", units = "cm", device = "jpg",width = 15, height =10, dpi = 300,bg = "white")
-ggsave (plot = FigSupp3, filename = "Supplementary_Fig3.png", units = "cm", device = "png",width = 15, height =10, dpi = 1000,bg = "white")
-ggsave (plot = FigSupp3, filename = "Supplementary_Fig3.jpg", units = "cm", device = "jpg",width = 15, height =10, dpi = 1000,bg = "white")
-ggsave (plot = FigSupp3, filename = "Supplementary_Fig3.svg", units = "cm", device = "svg",width = 15, height =10, dpi = 1000,bg = "white")
-ggsave (plot = FigSupp3, filename = "Supplementary_Fig3.pdf", units = "cm", device = "pdf",width = 15, height =10, dpi = 1000,bg = "white")
+############Assemble and save Supplementary Figure 4############
+ggsave (plot = FigSupp4, filename = "Supplementary_Fig4_low_quality.jpg", units = "cm", device = "jpg",width = 15, height =10, dpi = 300,bg = "white")
+ggsave (plot = FigSupp4, filename = "Supplementary_Fig4.png", units = "cm", device = "png",width = 15, height =10, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp4, filename = "Supplementary_Fig4.jpg", units = "cm", device = "jpg",width = 15, height =10, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp4, filename = "Supplementary_Fig4.svg", units = "cm", device = "svg",width = 15, height =10, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp4, filename = "Supplementary_Fig4.pdf", units = "cm", device = "pdf",width = 15, height =10, dpi = 1000,bg = "white")
 #################
 
-############Figure Supplementary 4############
+############Figure Supplementary 5############
 #Special Packages of enrichment
 
 #install.packages("AnnotationDbi")
 library(AnnotationDbi)
-#install.packages("AnnotationHub")
+#BiocManager::install("AnnotationHub")
 library(AnnotationHub)
 #install.packages("biomaRt")
 library(biomaRt)
 #install.packages("biomartr")
 library(biomartr) 
-#install.packages("clusterProfiler")
+#BiocManager::install("clusterProfiler")
 library(clusterProfiler)
-#install.packages("cola")
+#BiocManager::install("cola")
 library(cola)
-#install.packages("DO.db")
+#BiocManager::install("DO.db")
 library(DO.db)
 #install.packages("DOSE")
 library(DOSE)
 #install.packages("enrichplot")
 library(enrichplot)
-#install.packages("gage")
+#BiocManager::install("gage")
 library(gage)
 #install.packages("gageData")
 library(gageData)
@@ -638,26 +656,29 @@ library(gageData)
 library(ggnewscale)
 #install.packages("gsEasy")
 library(gsEasy)
-#install.packages("hu6800.db")
+#BiocManager::install("hu6800.db")
 library(hu6800.db)
-#install.packages("org.Sc.sgd.db")
+#BiocManager::install("org.Sc.sgd.db")
 library(org.Sc.sgd.db)
-#install.packages("ReactomePA")
+#BiocManager::install("ReactomePA")
 library(ReactomePA)
-#install.packages("simplifyEnrichment")
+#BiocManager::install("simplifyEnrichment")
 library(simplifyEnrichment) 
 
-m1 <- read.csv("4Supp_GO_scer_NQO_without_outliers.csv")
+m1 <- read.csv("5Supp_GO_scer_NQO_without_outliers.csv")
 m1_miss <- filter(m1, Consequence=="missense_variant")
 m1 <- m1_miss
 
-m3 <- read.csv("4Supp_GO_spar_NQO_without_outliers.csv")
+m3 <- read.csv("5Supp_GO_spar_NQO_without_outliers.csv")
 m3_miss <- filter(m3, Consequence=="missense_variant")
 m3 <- m3_miss
 
-m5 <- read.csv("4Supp_GO_hybrid_NQO_without_outliers_hybrid_concatenated.csv")
+m5 <- read.csv("5Supp_GO_hybrid_NQO_without_outliers_hybrid_concatenated.csv")
 m5_miss <- filter(m5, Consequence=="missense_variant")
 m5 <- m5_miss
+
+#Remove 25
+m5 <- filter(m5,Replicate!=25)
 
 m1a<- m1$ensembl_gene_id
 m1a<-as.data.frame(m1a)
@@ -698,12 +719,12 @@ A3<- emapplot(x3,color = "p.adjust",group_category = T, group_legend = T, cex_la
 
 network<- plot_grid(A1,A2,A3, nrow=1)
 #################
-############Assemble and save raw Supplementary Figure 4############
-ggsave (plot =  network, filename = "Supplementary_Fig4_raw_low_quality.jpg", units = "cm", device = "jpg",width = 60, height =25, dpi = 400,bg = "white")
-ggsave (plot =  network, filename = "Supplementary_Fig4_raw.png", units = "cm", device = "png",width = 60, height =25, dpi = 1000,bg = "white")
-ggsave (plot =  network, filename = "Supplementary_Fig4_raw.jpg", units = "cm", device = "jpg",width = 60, height =25, dpi = 1000,bg = "white")
-ggsave (plot =  network, filename = "Supplementary_Fig4_raw.svg", units = "cm", device = "svg",width = 60, height =25, dpi = 1000,bg = "white")
-ggsave (plot =  network, filename = "Supplementary_Fig4_raw.pdf", units = "cm", device = "pdf",width = 60, height =25, dpi = 1000,bg = "white")
+############Assemble and save raw Supplementary Figure 5############
+ggsave (plot =  network, filename = "Supplementary_Fig5_raw_low_quality.jpg", units = "cm", device = "jpg",width = 60, height =25, dpi = 400,bg = "white")
+ggsave (plot =  network, filename = "Supplementary_Fig5_raw.png", units = "cm", device = "png",width = 60, height =25, dpi = 1000,bg = "white")
+ggsave (plot =  network, filename = "Supplementary_Fig5_raw.jpg", units = "cm", device = "jpg",width = 60, height =25, dpi = 1000,bg = "white")
+ggsave (plot =  network, filename = "Supplementary_Fig5_raw.svg", units = "cm", device = "svg",width = 60, height =25, dpi = 1000,bg = "white")
+ggsave (plot =  network, filename = "Supplementary_Fig5_raw.pdf", units = "cm", device = "pdf",width = 60, height =25, dpi = 1000,bg = "white")
 #################
 
 #Calculate ratio of enrichment
@@ -731,20 +752,20 @@ xb$enrichment_Ratio <-  xb$GeneRatio_number / xb$BgRatio_number
 #Hybrid: trehalose metabolic process, ABC-type transporter activity (normally involved in efflux pumps poner)
 
 #################
-############Assemble and save Supplementary Figure 4############
+############Assemble and save Supplementary Figure 5############
 #We added some aesthetic modifications so we import it
 gpp <- rasterGrob(Supp4_GO, interpolate=TRUE)
 
-FigSupp4<-plot_grid(gpp)
+FigSupp5<-plot_grid(gpp)
 
-ggsave (plot = FigSupp4, filename = "Supplementary_Fig4_low_quality.jpg", units = "cm", device = "jpg",width = 20, height =40, dpi = 300,bg = "white")
-ggsave (plot = FigSupp4, filename = "Supplementary_Fig4.png", units = "cm", device = "png",width = 20, height =40, dpi = 1000,bg = "white")
-ggsave (plot = FigSupp4, filename = "Supplementary_Fig4.jpg", units = "cm", device = "jpg",width = 20, height =40, dpi = 300,bg = "white")
-ggsave (plot = FigSupp4, filename = "Supplementary_Fig4.svg", units = "cm", device = "svg",width = 20, height =40, dpi = 1000,bg = "white")
-ggsave (plot = FigSupp4, filename = "Supplementary_Fig4.pdf", units = "cm", device = "pdf",width = 20, height =40, dpi = 300,bg = "white")
+ggsave (plot = FigSupp5, filename = "Supplementary_Fig5_low_quality.jpg", units = "cm", device = "jpg",width = 20, height =40, dpi = 300,bg = "white")
+ggsave (plot = FigSupp5, filename = "Supplementary_Fig5.png", units = "cm", device = "png",width = 20, height =40, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp5, filename = "Supplementary_Fig5.jpg", units = "cm", device = "jpg",width = 20, height =40, dpi = 300,bg = "white")
+ggsave (plot = FigSupp5, filename = "Supplementary_Fig5.svg", units = "cm", device = "svg",width = 20, height =40, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp5, filename = "Supplementary_Fig5.pdf", units = "cm", device = "pdf",width = 20, height =40, dpi = 300,bg = "white")
 #################
 
-############Figure Supplementary 5############
+############Figure Supplementary 6############
 ##Panel A
 Supp_new_genome3c_new2 <-  dplyr:::filter(Supp_new_genome3c_new, Strain=="3Hybrid")
 Supp_new_genome3c_new2 <-  dplyr:::filter(Supp_new_genome3c_new2, Type=="Evolved_NQO")
@@ -765,7 +786,7 @@ nq_genome<- nq_snps_HYBRID
 
 legend_title <- "Relative Read Depth"
 
-FigSupp5A <-nq_genome %>% dplyr:::filter(Type=="Evolved_NQO") %>% 
+FigSupp6A <-nq_genome %>% dplyr:::filter(Type=="Evolved_NQO") %>% 
   ggplot(aes(x = as.numeric(start2),y = as.factor(chrom4),fill=Normalized_read)) + 
   theme_prism() + 
   theme(axis.text = element_text(size=20),
@@ -896,7 +917,7 @@ NQ_hyb28 <- NQ_hyb %>% filter(Replicate == 28)
 
 hybnq <-NQ_hyb28
 
-FigSupp5B <-hybnq %>%
+FigSupp6B <-hybnq %>%
   ggplot(aes(x=interaction(start,as.numeric(chrom2)), y=log2, col = chrom)) +
   xlab("Chromosome") +
   geom_point(col="#FF9999",size=0.00002) +
@@ -952,7 +973,7 @@ x<-x%>%filter(!(plate=="B"&evolved=="n"))
 x<-x%>%filter(!(plate=="C"&evolved=="n"&specie=="Spar haploid hyg alfa"))
 
 fdata <- x
-newdat53n <- filter(newdat5, LMH>184)
+newdat53n <- filter(newdat, LMH>184)
 
 triploides <- newdat53n %>% group_by(evolved,same_Replicate,specie) %>% dplyr:::summarise(n()) %>% ungroup()
 
@@ -973,7 +994,7 @@ NQ_hyb28 <- NQ_hyb %>% filter(replicate == 28)
 
 tri28graph <-rbind(NQ_hyb28,control3n,control2n)
 
-FigSupp5C<- tri28graph %>% ggplot(aes(log(FL1_A)), fill=evolved, group=interaction(same_Replicate,evolved)) +
+FigSupp6C<- tri28graph %>% ggplot(aes(log(FL1_A)), fill=evolved, group=interaction(same_Replicate,evolved)) +
   xlab("DNA content \n (A.U. Fluorescence)")+
   ylab("Cell count \n (density)")+
   scale_fill_manual(legend_title,values=c("grey", "honeydew4", "#FF9999"),
@@ -990,24 +1011,24 @@ FigSupp5C<- tri28graph %>% ggplot(aes(log(FL1_A)), fill=evolved, group=interacti
 
 #################
 ############Assemble and save Supplementary Figure 5############
-FigA_label<- plot_grid(FigSupp5A,labels="a",label_size=25)
-FigB_label<- plot_grid(FigSupp5B,labels="b",label_size=25)
-FigC_label<- plot_grid(FigSupp5C,labels="c",label_size=25)
+FigA_label<- plot_grid(FigSupp6A,labels="a",label_size=25)
+FigB_label<- plot_grid(FigSupp6B,labels="b",label_size=25)
+FigC_label<- plot_grid(FigSupp6C,labels="c",label_size=25)
 
-Figsupp5_left <- plot_grid(FigB_label,FigC_label,nrow=2)
+Figsupp6_left <- plot_grid(FigB_label,FigC_label,nrow=2)
 
-Figsupp5_all <- plot_grid(FigA_label,Figsupp5_left,nrow=1, rel_widths = c(1,1.7))
+Figsupp6_all <- plot_grid(FigA_label,Figsupp6_left,nrow=1, rel_widths = c(1,1.7))
 
-ggsave (plot = Figsupp5_all, filename = "Supplementary_Fig5_low_quality.jpg", units = "cm", device = "jpg",width = 40, height =20, dpi = 300,bg = "white")
-ggsave (plot = Figsupp5_all, filename = "Supplementary_Fig5.png", units = "cm", device = "png",width = 40, height =20, dpi = 1000,bg = "white")
-ggsave (plot = Figsupp5_all, filename = "Supplementary_Fig5.jpg", units = "cm", device = "jpg",width = 40, height =20, dpi = 1000,bg = "white")
-ggsave (plot = Figsupp5_all, filename = "Supplementary_Fig5.svg", units = "cm", device = "svg",width = 40, height =20, dpi = 1000,bg = "white")
-ggsave (plot = Figsupp5_all, filename = "Supplementary_Fig5.pdf", units = "cm", device = "pdf",width = 40, height =20, dpi = 1000,bg = "white")
+ggsave (plot = Figsupp6_all, filename = "Supplementary_Fig6_low_quality.jpg", units = "cm", device = "jpg",width = 40, height =20, dpi = 300,bg = "white")
+ggsave (plot = Figsupp6_all, filename = "Supplementary_Fig6.png", units = "cm", device = "png",width = 40, height =20, dpi = 1000,bg = "white")
+ggsave (plot = Figsupp6_all, filename = "Supplementary_Fig6.jpg", units = "cm", device = "jpg",width = 40, height =20, dpi = 1000,bg = "white")
+ggsave (plot = Figsupp6_all, filename = "Supplementary_Fig6.svg", units = "cm", device = "svg",width = 40, height =20, dpi = 1000,bg = "white")
+ggsave (plot = Figsupp6_all, filename = "Supplementary_Fig6.pdf", units = "cm", device = "pdf",width = 40, height =20, dpi = 1000,bg = "white")
 #################
 
-############Figure Supplementary 6############
+############Figure Supplementary 7############
 a1<- filter(Supp_growth_plasmids, Type=="WT + pmoby")
-a2<- filter (Supp_growth_plasmids, Type=="Δpdr1 + pmoby")
+a2<- filter (Supp_growth_plasmids, Type=="pdr1Δ + pmoby")
 
 all_data2<-rbind(a1,a2)
 
@@ -1058,8 +1079,15 @@ data_bold$Specie <- factor(data_bold$Specie,        # Change factor labels
                            labels = c("BY4741",
                                       "italic(S.cerevisiae)",
                                       "italic(S.paradoxus)"))
+
+#Make changes for figures purposes
+data_bold$Type <- ifelse(data_bold$Type == "Δpdr1 + pmoby", "pdr1Δ + pmoby", data_bold$Type)
+data_bold$Type <- ifelse(data_bold$Type == "Δpdr1 + pmobyEMPTY", "pdr1Δ + pmobyEMPTY", data_bold$Type)
+data_bold$Type <- ifelse(data_bold$Type == "Δpdr1 + pmoby_scer", "pdr1Δ + pmoby_scer", data_bold$Type)
+
+legend_title <- " "
 #Scer growth curves 
-Figure2_v2<- data_bold%>% filter(Condition.y=="NQO_4μM") %>% 
+Figure7_v2<- data_bold%>% filter(Condition.y=="NQO_4μM") %>% 
   ggplot(aes(y = mean_od,x= hour_Rounded,ymin = mean_od - error_estandar, ymax = mean_od + error_estandar,group=Mutation)) +
   geom_ribbon(alpha = 0.5, aes(fill=Mutation)) +
   geom_line(aes(col=Mutation)) +
@@ -1107,6 +1135,10 @@ all_data2_day2<-all_data2%>% filter(Day==2)
 all_data2_day2<- all_data2_day2 %<>% mutate(Type = ifelse(Type=="WT + pmoby","WT + pmoby_scer",Type))
 
 all_data2_day2<- all_data2_day2 %<>% mutate(Type = ifelse(Type=="Δpdr1 + pmoby","Δpdr1 + pmoby_scer",Type))
+
+all_data2_day2$Type <- ifelse(all_data2_day2$Type == "Δpdr1 + pmoby", "pdr1Δ + pmoby", all_data2_day2$Type)
+all_data2_day2$Type <- ifelse(all_data2_day2$Type == "Δpdr1 + pmobyEMPTY", "pdr1Δ + pmobyEMPTY", all_data2_day2$Type)
+all_data2_day2$Type <- ifelse(all_data2_day2$Type == "Δpdr1 + pmoby_scer", "pdr1Δ + pmoby_scer", all_data2_day2$Type)
 
 check1_BY_day2<- all_data2_day2 %>% filter(Specie=="BY4741") %>% ggplot(aes(x = interaction(Specie,Type), y = Mutation, fill = aucexp)) +
   geom_tile() + 
@@ -1182,6 +1214,10 @@ all_data2<-rbind(a1,a2)
 
 all_data2_day2<-all_data2%>% filter(Day==2)
 
+all_data2_day2$Type <- ifelse(all_data2_day2$Type == "Δpdr1 + pmoby", "pdr1Δ + pmoby", all_data2_day2$Type)
+all_data2_day2$Type <- ifelse(all_data2_day2$Type == "Δpdr1 + pmobyEMPTY", "pdr1Δ + pmobyEMPTY", all_data2_day2$Type)
+all_data2_day2$Type <- ifelse(all_data2_day2$Type == "Δpdr1 + pmoby_spar", "pdr1Δ + pmoby_spar", all_data2_day2$Type)
+
 check1_BY_day2<- all_data2_day2 %>% filter(Specie=="BY4741") %>% ggplot(aes(x = interaction(Specie,Type), y = Mutation, fill = aucexp)) +
   geom_tile() + 
   facet_grid(.~factor(Condition.y, levels=c('NQO_4μM','NQO_8μM','NQO_10μM','Control')))+
@@ -1200,6 +1236,10 @@ check1_BY_day2<- all_data2_day2 %>% filter(Specie=="BY4741") %>% ggplot(aes(x = 
                    labels = c("G281V", "G279S", "G279R", "WT"))
 
 all_data2_day2<-all_data2%>% filter(Day==2)
+
+all_data2_day2$Type <- ifelse(all_data2_day2$Type == "Δpdr1 + pmoby", "pdr1Δ + pmoby", all_data2_day2$Type)
+all_data2_day2$Type <- ifelse(all_data2_day2$Type == "Δpdr1 + pmobyEMPTY", "pdr1Δ + pmobyEMPTY", all_data2_day2$Type)
+all_data2_day2$Type <- ifelse(all_data2_day2$Type == "Δpdr1 + pmoby_spar", "pdr1Δ + pmoby_spar", all_data2_day2$Type)
 
 check1_Scer_day2<- all_data2_day2 %>% filter(Specie=="Scer") %>% ggplot(aes(x = interaction(Specie,Type), y = Mutation, fill = aucexp)) +
   geom_tile() + 
@@ -1277,8 +1317,12 @@ data_bold$Specie <- factor(data_bold$Specie,
 
 data_bold<- filter(data_bold,hour_Rounded <41)
 
+data_bold$Type <- ifelse(data_bold$Type == "Δpdr1 + pmoby", "pdr1Δ + pmoby", data_bold$Type)
+data_bold$Type <- ifelse(data_bold$Type == "Δpdr1 + pmobyEMPTY", "pdr1Δ + pmobyEMPTY", data_bold$Type)
+data_bold$Type <- ifelse(data_bold$Type == "Δpdr1 + pmoby_spar", "pdr1Δ + pmoby_spar", data_bold$Type)
+
 #Spar growth curves 
-Figure2b_v2<- data_bold %>% filter(Condition.y=="NQO_4μM") %>% 
+Figure7b_v2<- data_bold %>% filter(Condition.y=="NQO_4μM") %>% 
   ggplot(aes(y = mean_od,x= hour_Rounded,
              ymin = mean_od - error_estandar,
              ymax = mean_od + error_estandar,group=Mutation)) +
@@ -1312,20 +1356,20 @@ Figure2b_v2<- data_bold %>% filter(Condition.y=="NQO_4μM") %>%
         legend.text = element_text(size=14))
 #################
 ############Assemble and save Supplementary Figure 6############
-Fig_supp<- plot_grid(Figure2_v2,Figure2b_v2,nrow=1)
+Fig_supp<- plot_grid(Figure7_v2,Figure7b_v2,nrow=1)
 Fig_suppB <- plot_grid(combined_plot,combined_plot2,nrow=2)
 Fig_supp_A<- plot_grid(Fig_supp,labels="a",label_size=26)
 Fig_suppB_B<- plot_grid(Fig_suppB,labels="b",label_size=26)
-FigSupp6 <- plot_grid(Fig_supp_A,Fig_suppB_B,nrow=2)
+FigSupp7 <- plot_grid(Fig_supp_A,Fig_suppB_B,nrow=2)
 
-ggsave (plot = FigSupp6, filename = "Supplementary_Fig6_low_quality.jpg", units = "cm", device = "jpg",width = 40, height =40, dpi = 300,bg = "white")
-ggsave (plot = FigSupp6, filename = "Supplementary_Fig6.png", units = "cm", device = "png",width = 40, height =40, dpi = 1000,bg = "white")
-ggsave (plot = FigSupp6, filename = "Supplementary_Fig6.jpg", units = "cm", device = "jpg",width = 40, height =40, dpi = 1000,bg = "white")
-ggsave (plot = FigSupp6, filename = "Supplementary_Fig6.svg", units = "cm", device = "svg",width = 40, height =40, dpi = 700,bg = "white")
-ggsave (plot = FigSupp6, filename = "Supplementary_Fig6.pdf", units = "cm", device = "pdf",width = 40, height =40, dpi = 700,bg = "white")
+ggsave (plot = FigSupp7, filename = "Supplementary_Fig7_low_quality.jpg", units = "cm", device = "jpg",width = 40, height =40, dpi = 300,bg = "white")
+ggsave (plot = FigSupp7, filename = "Supplementary_Fig7.png", units = "cm", device = "png",width = 40, height =40, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp7, filename = "Supplementary_Fig7.jpg", units = "cm", device = "jpg",width = 40, height =40, dpi = 1000,bg = "white")
+ggsave (plot = FigSupp7, filename = "Supplementary_Fig7.svg", units = "cm", device = "svg",width = 40, height =40, dpi = 700,bg = "white")
+ggsave (plot = FigSupp7, filename = "Supplementary_Fig7.pdf", units = "cm", device = "pdf",width = 40, height =40, dpi = 700,bg = "white")
 #################
 
-############Figure Supplementary 7,8 and 9############
+############Figure Supplementary 8,9 and 10############
 ############Figure read coverage######## 
 all_pools_samples <- Supp_raw_cov
 all_pools_samples$log2 <- log2(all_pools_samples$mean_window)
@@ -1782,29 +1826,29 @@ ancestor3 <- exampleHybrid %>% filter(Type=="Evolved_NQO") %>%
 
 M3<- plot_grid(ancestor,ancestor2,ancestor3,nrow=3)
 #################
-############Assemble and save Supplementary Figure 7############
-ggsave (plot = M1, filename = "Supplementary_Fig7_low_quality.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 300,bg = "white")
-ggsave (plot = M1, filename = "Supplementary_Fig7.png", units = "cm", device = "png",width = 70, height =90, dpi = 800,bg = "white")
-ggsave (plot = M1, filename = "Supplementary_Fig7.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 800,bg = "white")
-ggsave (plot = M1, filename = "Supplementary_Fig7.svg", units = "cm", device = "svg",width = 70, height =90, dpi = 500,bg = "white")
-ggsave (plot = M1, filename = "Supplementary_Fig7.pdf", units = "cm", device = "pdf",width = 70, height =90, dpi = 500,bg = "white")
-#################
 ############Assemble and save Supplementary Figure 8############
-ggsave (plot = M2, filename = "Supplementary_Fig8_low_quality.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 300,bg = "white")
-ggsave (plot = M2, filename = "Supplementary_Fig8.png", units = "cm", device = "png",width = 70, height =90, dpi = 800,bg = "white")
-ggsave (plot = M2, filename = "Supplementary_Fig8.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 800,bg = "white")
-ggsave (plot = M2, filename = "Supplementary_Fig8.svg", units = "cm", device = "svg",width = 70, height =90, dpi = 500,bg = "white")
-ggsave (plot = M2, filename = "Supplementary_Fig8.pdf", units = "cm", device = "pdf",width = 70, height =90, dpi = 500,bg = "white")
+ggsave (plot = M1, filename = "Supplementary_Fig8_low_quality.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 300,bg = "white")
+ggsave (plot = M1, filename = "Supplementary_Fig8.png", units = "cm", device = "png",width = 70, height =90, dpi = 800,bg = "white")
+ggsave (plot = M1, filename = "Supplementary_Fig8.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 800,bg = "white")
+ggsave (plot = M1, filename = "Supplementary_Fig8.svg", units = "cm", device = "svg",width = 70, height =90, dpi = 500,bg = "white")
+ggsave (plot = M1, filename = "Supplementary_Fig8.pdf", units = "cm", device = "pdf",width = 70, height =90, dpi = 500,bg = "white")
 #################
 ############Assemble and save Supplementary Figure 9############
-ggsave (plot = M3, filename = "Supplementary_Fig9_low_quality.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 300,bg = "white")
-ggsave (plot = M3, filename = "Supplementary_Fig9.png", units = "cm", device = "png",width = 70, height =90, dpi = 800,bg = "white")
-ggsave (plot = M3, filename = "Supplementary_Fig9.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 800,bg = "white")
-ggsave (plot = M3, filename = "Supplementary_Fig9.svg", units = "cm", device = "svg",width = 70, height =90, dpi = 500,bg = "white")
-ggsave (plot = M3, filename = "Supplementary_Fig9.pdf", units = "cm", device = "pdf",width = 70, height =90, dpi = 500,bg = "white")
+ggsave (plot = M2, filename = "Supplementary_Fig9_low_quality.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 300,bg = "white")
+ggsave (plot = M2, filename = "Supplementary_Fig9.png", units = "cm", device = "png",width = 70, height =90, dpi = 800,bg = "white")
+ggsave (plot = M2, filename = "Supplementary_Fig9.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 800,bg = "white")
+ggsave (plot = M2, filename = "Supplementary_Fig9.svg", units = "cm", device = "svg",width = 70, height =90, dpi = 500,bg = "white")
+ggsave (plot = M2, filename = "Supplementary_Fig9.pdf", units = "cm", device = "pdf",width = 70, height =90, dpi = 500,bg = "white")
+#################
+############Assemble and save Supplementary Figure 10############
+ggsave (plot = M3, filename = "Supplementary_Fig10_low_quality.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 300,bg = "white")
+ggsave (plot = M3, filename = "Supplementary_Fig10.png", units = "cm", device = "png",width = 70, height =90, dpi = 800,bg = "white")
+ggsave (plot = M3, filename = "Supplementary_Fig10.jpg", units = "cm", device = "jpg",width = 70, height =90, dpi = 800,bg = "white")
+ggsave (plot = M3, filename = "Supplementary_Fig10.svg", units = "cm", device = "svg",width = 70, height =90, dpi = 500,bg = "white")
+ggsave (plot = M3, filename = "Supplementary_Fig10.pdf", units = "cm", device = "pdf",width = 70, height =90, dpi = 500,bg = "white")
 #################
 
-############Figure Supplementary 10############
+############Figure Supplementary 11############
 Supp_raw_cov$Replicate<-as.numeric(Supp_raw_cov$Replicate)
 all_mean_genome_chrom<-Supp_raw_cov%<>% mutate(chrom2 = ifelse(chrom=="utg351_pilon","Spar chrI",
                                                               ifelse(chrom=="utg1271_pilon","Spar chrII",
@@ -2784,9 +2828,9 @@ C<-plot_grid(hyb_ancestor_title,hyb_nq_title,ncol=1)
 CD<-plot_grid(C,hyb_con_title,ncol=2)
 BC <-plot_grid(A,B,CD,ncol=1,rel_heights=c(1.1,1.1,1.6))
 
-ggsave (plot = BC, filename = "Supplementary_Fig10_low_quality.jpg", units = "cm", device = "jpg",width =70, height =96, dpi = 300,bg = "white")
-ggsave (plot = BC, filename = "Supplementary_Fig10.png", units = "cm", device = "png",width =70, height =96, dpi = 800,bg = "white")
-ggsave (plot = BC, filename = "Supplementary_Fig10.jpg", units = "cm", device = "jpg",width =70, height =96, dpi = 800,bg = "white")
-ggsave (plot = BC, filename = "Supplementary_Fig10.svg", units = "cm", device = "svg",width =70, height =96, dpi = 500,bg = "white")
-ggsave (plot = BC, filename = "Supplementary_Fig10.pdf", units = "cm", device = "pdf",width =70, height =96, dpi = 500,bg = "white")
+ggsave (plot = BC, filename = "Supplementary_Fig11_low_quality.jpg", units = "cm", device = "jpg",width =70, height =96, dpi = 300,bg = "white")
+ggsave (plot = BC, filename = "Supplementary_Fig11.png", units = "cm", device = "png",width =70, height =96, dpi = 800,bg = "white")
+ggsave (plot = BC, filename = "Supplementary_Fig11.jpg", units = "cm", device = "jpg",width =70, height =96, dpi = 800,bg = "white")
+ggsave (plot = BC, filename = "Supplementary_Fig11.svg", units = "cm", device = "svg",width =70, height =96, dpi = 500,bg = "white")
+ggsave (plot = BC, filename = "Supplementary_Fig11.pdf", units = "cm", device = "pdf",width =70, height =96, dpi = 500,bg = "white")
 #################
