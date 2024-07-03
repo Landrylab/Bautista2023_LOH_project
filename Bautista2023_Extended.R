@@ -1,4 +1,4 @@
-##Extended Figures Bautista_2023###
+##Extended Figures Bautista_2024###
 
 #In order to place the figures in the same folder as the data tables,
 #you need to specify the name of this directory in the 'Set Directory' section below.
@@ -18,8 +18,8 @@ library(car)
 library(cowplot)
 #install.packages("data.table")
 library(data.table)
-#install.packages("ddply")
-library(ddply)
+#install.packages("dplyr")
+library(dplyr)
 #install.packages("drc")
 library(drc)
 #install.packages("egg")
@@ -28,9 +28,9 @@ library(egg)
 library(factoextra)
 #install.packages("foreign")
 library(foreign)
-#install.packages("flowCore")
+#BiocManager::install("flowCore")
 library(flowCore)
-#install.packages("flowViz")
+#BiocManager::install("flowViz")
 library(flowViz)
 #install.packages("gdata")
 library(gdata)
@@ -50,7 +50,7 @@ library(ggprism)
 library(ggpubr)
 #install.packages("ggthemes")
 library(ggthemes)
-#install.packages("ggtree")
+#BiocManager::install("ggtree")
 library(ggtree)
 #install.packages("glue")
 library(glue)
@@ -80,6 +80,8 @@ library(multcomp)
 library(multcompView)
 #install.packages("nlme") 
 library(nlme)
+#install.packages("pdftools")
+library(pdftools)
 #install.packages("pegas")
 library(pegas)
 #install.packages("plyr")  
@@ -102,7 +104,7 @@ library(stats)
 library(stringr)
 #install.packages("svglite")
 library(svglite)
-#install.packages("trackViewer")
+#BiocManager::install("trackViewer")
 library(trackViewer)
 #install.packages("tidyr")
 library(tidyr)
@@ -119,7 +121,7 @@ library(dplyr)
 #################
 
 ####Set directory####
-#Define the directory where you save all the data from Bautista_2023
+#Define the directory where you save all the data from Bautista_2024
 setwd("")
 #################
 
@@ -139,19 +141,22 @@ Extended6_PDR1 <- readPNG("6Extended_PDR1.png")
 Extended7_candida <-image_read_pdf("7Extended_candida.pdf")
 Extended_growth<-read_csv("8Extended_growth.csv")
 Extended_expression<-read_csv("8Extended_expression.csv")
-Extended_expevol<-read_csv("9Extended_expevol.csv")
-Extended9_Sanger <-image_read_pdf("9Extended_Sanger.pdf")
-Extended9_LOH_table_parents <- read_excel("9Extended_LOH_parents_table.xlsx")
-Extended9_LOH_parents_table_proportion<-read_excel("9Extended_LOH_parents_table_proportion.xlsx")
-Extended9_LOH_parents_table_proportion_hybrid<-read_csv("9Extended_LOH_parents_table_proportion_hybrid.csv")
-Extended9_LOH_line13_final<-read_excel("9Extended_LOH_line13_final.xlsx")
-Extended9_LOH_line28_final<- read_excel("9Extended_LOH_line28_final.xlsx")
-Extended9_LOH_line30_final<-read_excel("9Extended_LOH_line30_final.xlsx")
-Extended_loh_table_day2<-read_csv("10Extended_loh_table_day2.csv")
-Extended_fdata<-read_csv("10Extended_fdata.csv")
+Extended9_boxplot <- read_csv("9Extended_boxplot.csv")
+Extended9_curves <- read_csv("9Extended_curves.csv")
+Extended_expevol<-read_csv("10Extended_expevol.csv")
+Extended10_Sanger <-image_read_pdf("10Extended_Sanger.pdf")
+Extended10_LOH_table_parents <- read_excel("10Extended_LOH_parents_table.xlsx")
+Extended10_LOH_parents_table_proportion<-read_excel("10Extended_LOH_parents_table_proportion.xlsx")
+Extended10_LOH_parents_table_proportion_hybrid<-read_csv("10Extended_LOH_parents_table_proportion_hybrid.csv")
+Extended10_LOH_line13_final<-read_excel("10Extended_LOH_line13_final.xlsx")
+Extended10_LOH_line28_final<- read_excel("10Extended_LOH_line28_final.xlsx")
+Extended10_LOH_line30_final<-read_excel("10Extended_LOH_line30_final.xlsx")
+Extended_loh_table_day2<-read_csv("11Extended_loh_table_day2.csv")
+Extended_fdata<-read_csv("11Extended_fdata.csv")
 ##########
 
 ############Figure Extended 1############
+#NQO
 AV<- dplyr::filter(Extended_genomics, condition=="NQO")
 nq <- dplyr::filter(AV, Evolved=="Evolved_NQO")
 con <- dplyr::filter(AV, Evolved=="Evolved_control")
@@ -185,7 +190,7 @@ Fig_ext1 <- AVB %>% dplyr::filter(day==2)%>%
   geom_boxplot(outlier.shape=NA,aes(fill=Specie),col="black",alpha=0.2)+ 
   geom_point(pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2)+
   scale_x_discrete("Genotype", labels=expression(italic(S.cerevisiae), italic(S.paradoxus), Hybrid)) +
-  xlab("Group") + ylab("Growth rate (OD/hour) in UV mimetic conditions") + 
+  xlab("Group") + ylab("Growth rate (OD/hour) \n in UV mimetic conditions") + 
   scale_color_manual(values=c("green4", "dodgerblue1", "black"),
                      labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
   scale_fill_manual(legend_title,values=c("green4", "dodgerblue1", "#FF9999","grey"), 
@@ -207,17 +212,27 @@ Fig_ext1 <- AVB %>% dplyr::filter(day==2)%>%
         legend.title = element_text(size=25,angle = 270, vjust= 0.2,hjust= 0.9),
         legend.title.align=0.1,
         legend.text = element_text(size=15),
-        legend.direction="horizontal")
+        legend.direction="horizontal")+ylim(0,1)
 
 legfitness <- get_legend(Fig_ext1)
 daytwo <- AVB %>% dplyr::filter(day==2)
+
+AVB1<-AVB %>%dplyr::filter(Evolved=="Evolved_NQO")
+AVB1<-AVB1 %>%dplyr::filter(day==2)
+
+AVB1$Specie<-as.factor(AVB1$Specie)
+amod <- aov(rval ~ Specie, data = AVB1)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Specie = "Tukey"))
+summary(inter.test1)
+cld(inter.test1)
 
 Fig_ext1_A <- daytwo %>% dplyr::filter(Evolved=="Evolved_NQO")%>%
   ggplot(aes(x=Specie,y=rval, col=Specie, group=Specie))+
   geom_boxplot(outlier.shape=NA,aes(fill=Specie),col="black",alpha=0.2)+ 
   geom_point(pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2)+
   scale_x_discrete("Genotype", labels=expression(italic(S.cerevisiae), italic(S.paradoxus), Hybrid)) +
-  xlab("Group") + ylab("Growth rate (OD/hour) in UV mimetic conditions") + 
+  xlab("Group") + ylab("Growth rate (OD/hour) \n in UV mimetic conditions") + 
   scale_color_manual(values=c("green4", "dodgerblue1", "black"), 
                      labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
   scale_fill_manual(values=c("green4", "dodgerblue1", "#FF9999","grey"), 
@@ -232,7 +247,7 @@ Fig_ext1_A <- daytwo %>% dplyr::filter(Evolved=="Evolved_NQO")%>%
   annotate("text",
            y = c(0.69, 0.72, 0.76),
            x = c(1.5, 2.5, 2),
-           label = c("p < 0.01", "p < 0.001", "p < 0.0001"),
+           label = c("p < 0.05", "p < 0.001", "p < 0.001"),
            family = "", fontface = 3, size=3)+
   guides(color = guide_legend(title = "Genotype")) +
   theme(legend.position = "none",
@@ -254,14 +269,24 @@ Fig_ext1_A <- daytwo %>% dplyr::filter(Evolved=="Evolved_NQO")%>%
         legend.position="none",
         strip.text = element_text(face = "bold", size = 14),
         axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12))
+        axis.text.y = element_text(size = 12))+ylim(0,1)
+
+AVB1<-AVB %>%dplyr::filter(Evolved=="Evolved_control")
+AVB1<-AVB1 %>%dplyr::filter(day==2)
+
+AVB1$Specie<-as.factor(AVB1$Specie)
+amod <- aov(rval ~ Specie, data = AVB1)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Specie = "Tukey"))
+summary(inter.test1)
+cld(inter.test1)
 
 Fig_ext1_B <- daytwo %>% dplyr::filter(Evolved=="Evolved_control")%>%
   ggplot(aes(x=Specie,y=rval, col=Specie, group=Specie))+
   geom_boxplot(outlier.shape=NA,aes(fill=Specie),col="black",alpha=0.2)+ 
   geom_point(pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2)+
   scale_x_discrete("Genotype", labels=expression(italic(S.cerevisiae), italic(S.paradoxus), Hybrid)) +
-  xlab("Group") + ylab("Growth rate (OD/hour) in UV mimetic conditions") + scale_color_manual(values=c("green4", "dodgerblue1", "black"), 
+  xlab("Group") + ylab("Growth rate (OD/hour) \n in UV mimetic conditions") + scale_color_manual(values=c("green4", "dodgerblue1", "black"), 
                                                                                               labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
   scale_fill_manual(values=c("green4", "dodgerblue1", "#FF9999","grey"), 
                     labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
@@ -275,7 +300,7 @@ Fig_ext1_B <- daytwo %>% dplyr::filter(Evolved=="Evolved_control")%>%
   annotate("text",
            y = c(0.69, 0.72, 0.76),
            x = c(1.5, 2.5, 2),
-           label = c("p < 0.0001", "p > 0.05", "p < 0.01"),
+           label = c("p < 0.0001", "p > 0.05", "p < 0.05"),
            family = "", fontface = 3, size=3) + 
   guides(color = guide_legend(title = "Genotype")) +
   theme(legend.position = "none",
@@ -297,14 +322,24 @@ Fig_ext1_B <- daytwo %>% dplyr::filter(Evolved=="Evolved_control")%>%
         legend.position="none",
         strip.text = element_text(face = "bold", size = 14),
         axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12))
+        axis.text.y = element_text(size = 12))+ylim(0,1)
+
+AVB1<-AVB %>%dplyr::filter(Evolved=="Ancestor")
+AVB1<-AVB1 %>%dplyr::filter(day==2)
+
+AVB1$Specie<-as.factor(AVB1$Specie)
+amod <- aov(rval ~ Specie, data = AVB1)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Specie = "Tukey"))
+summary(inter.test1)
+cld(inter.test1)
 
 Fig_ext1_C <- daytwo %>% dplyr::filter(Evolved=="Ancestor")%>%
   ggplot(aes(x=Specie,y=rval, col=Specie, group=Specie))+
   geom_boxplot(outlier.shape=NA,aes(fill=Specie),col="black",alpha=0.2)+ 
   geom_point(pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2)+
   scale_x_discrete("Genotype", labels=expression(italic(S.cerevisiae), italic(S.paradoxus), Hybrid)) +
-  xlab("Group") + ylab("Growth rate (OD/hour) in UV mimetic conditions") + scale_color_manual(values=c("green4", "dodgerblue1", "black"), 
+  xlab("Group") + ylab("Growth rate (OD/hour) \n in UV mimetic conditions") + scale_color_manual(values=c("green4", "dodgerblue1", "black"), 
                                                                                               labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
   scale_fill_manual(values=c("green4", "dodgerblue1", "#FF9999","grey"), 
                     labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
@@ -318,7 +353,7 @@ Fig_ext1_C <- daytwo %>% dplyr::filter(Evolved=="Ancestor")%>%
   annotate("text",
            y = c(0.69, 0.72, 0.76),
            x = c(1.5, 2.5, 2),
-           label = c("p < 0.0001", "p < 0.0001", "p < 0.0001"),
+           label = c("p < 0.0001", "p < 0.0001", "p < 0.001"),
            family = "", fontface = 3, size=3) + 
   guides(color = guide_legend(title = "Genotype")) +
   theme(legend.position = "none",
@@ -338,18 +373,239 @@ Fig_ext1_C <- daytwo %>% dplyr::filter(Evolved=="Ancestor")%>%
         legend.position="none",
         strip.text = element_text(face = "bold", size = 14),
         axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12))
+        axis.text.y = element_text(size = 12))+ylim(0,1)
 
+#CONTROL
+AV<- dplyr::filter(Extended_genomics, condition=="Control")
+nq <- dplyr::filter(AV, Evolved=="Evolved_NQO")
+con <- dplyr::filter(AV, Evolved=="Evolved_control")
+anc <- dplyr::filter(AV, Evolved=="Ancestor")
+AVB<-rbind(nq,con,anc)
+
+#Define some functions
+my_comparisons <- list( c("1.1Scer", "2.1Scer"), c("1.3Hybrid","2.3Hybrid"),
+                        c("1.2Spar", "2.2Spar"))
+
+cond.labs <- c(
+  `Evolved_control` = "Evolved in control",
+  `Evolved_NQO` = "Evolved in UV mimetic",
+  `Ancestor` = "Ancestor"
+)
+
+toexpr<-function(x) {
+  getfun <- function(x) {
+    ifelse(x=="Hybrid", "plain", "italic")
+  }
+  as.expression(unname(Map(function(f,v) substitute(f(v), list(f=as.name(f), v=as.character(v))), getfun(x), x)))
+}
+
+my_comparisons <- list( c("1Scer", "2Spar"), c("1Scer","3Hybrid"),
+                        c("2Spar", "3Hybrid"))
+
+legend_title <- " "
+
+Fig_extD <- AVB %>% dplyr::filter(day==2)%>%
+  ggplot(aes(x=Specie,y=rval, col=Specie, group=Specie))+
+  geom_boxplot(outlier.shape=NA,aes(fill=Specie),col="black",alpha=0.2)+ 
+  geom_point(pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2)+
+  scale_x_discrete("Genotype", labels=expression(italic(S.cerevisiae), italic(S.paradoxus), Hybrid)) +
+  xlab("Group") + ylab("Growth rate (OD/hour) \n in control conditions") + 
+  scale_color_manual(values=c("green4", "dodgerblue1", "black"),
+                     labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
+  scale_fill_manual(legend_title,values=c("green4", "dodgerblue1", "#FF9999","grey"), 
+                    labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
+  theme_bw() +
+  theme_prism() + 
+  theme(legend.key.size = unit(1, 'cm'), 
+        legend.key.height = unit(1, 'cm'), 
+        legend.key.width = unit(1, 'cm'),
+        legend.position="top",legend.text.align = 0) +
+  guides(color = guide_legend(title = "Genotype")) +
+  facet_grid(.~Evolved, labeller = as_labeller(cond.labs)) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.72, "cm"))+
+  guides(fill=guide_legend(title=" "))+
+  theme(legend.key.size = unit(1, 'cm'),
+        legend.key.height = unit(1, 'cm'),
+        legend.key.width = unit(1, 'cm'),
+        legend.title = element_text(size=25,angle = 270, vjust= 0.2,hjust= 0.9),
+        legend.title.align=0.1,
+        legend.text = element_text(size=15),
+        legend.direction="horizontal")+ylim(0,1)
+
+legfitness <- get_legend(Fig_ext1)
+
+AVB1<-AVB %>%dplyr::filter(Evolved=="Evolved_NQO")
+AVB1<-AVB1 %>%dplyr::filter(day==2)
+
+AVB1$Specie<-as.factor(AVB1$Specie)
+amod <- aov(rval ~ Specie, data = AVB1)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Specie = "Tukey"))
+summary(inter.test1)
+cld(inter.test1)
+
+daytwo <- AVB %>% dplyr::filter(day==2)
+
+Fig_ext1_D <- daytwo %>% dplyr::filter(Evolved=="Evolved_NQO")%>%
+  ggplot(aes(x=Specie,y=rval, col=Specie, group=Specie))+
+  geom_boxplot(outlier.shape=NA,aes(fill=Specie),col="black",alpha=0.2)+ 
+  geom_point(pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2)+
+  scale_x_discrete("Genotype", labels=expression(italic(S.cerevisiae), italic(S.paradoxus), Hybrid)) +
+  xlab("Group") + ylab("Growth rate (OD/hour) \n in control conditions") + 
+  scale_color_manual(values=c("green4", "dodgerblue1", "black"), 
+                     labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
+  scale_fill_manual(values=c("green4", "dodgerblue1", "#FF9999","grey"), 
+                    labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
+  theme_bw() +
+  geom_segment(aes(x=1, xend=2, y=0.77, yend=0.77)) + 
+  geom_segment(aes(x=2, xend=3, y=0.80, yend=0.80)) + 
+  geom_segment(aes(x=1, xend=3, y=0.84, yend=0.84)) +
+  annotate("text", x = 1, y = 0.88, size = 3,
+           label = c("p < 0.001"),
+           family = "", fontface = 3)+
+  annotate("text",
+           y = c(0.79, 0.82, 0.86),
+           x = c(1.5, 2.5, 2),
+           label = c("p < 0.01", "p < 0.01", "p > 0.05"),
+           family = "", fontface = 3, size=3)+
+  guides(color = guide_legend(title = "Genotype")) +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 14),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"))+
+  facet_grid(.~Evolved, labeller = as_labeller(cond.labs)) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.72, "cm"))+
+  guides(fill=guide_legend(title=" "))+
+  theme(axis.title = element_text(size=14, face = "bold"),
+        strip.background = element_blank(),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
+        axis.title.x = element_blank(),
+        legend.position="none",
+        strip.text = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12))+ylim(0,1)
+
+AVB1<-AVB %>%dplyr::filter(Evolved=="Evolved_control")
+AVB1<-AVB1 %>%dplyr::filter(day==2)
+
+AVB1$Specie<-as.factor(AVB1$Specie)
+amod <- aov(rval ~ Specie, data = AVB1)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Specie = "Tukey"))
+summary(inter.test1)
+cld(inter.test1)
+
+Fig_ext1_E <- daytwo %>% dplyr::filter(Evolved=="Evolved_control")%>%
+  ggplot(aes(x=Specie,y=rval, col=Specie, group=Specie))+
+  geom_boxplot(outlier.shape=NA,aes(fill=Specie),col="black",alpha=0.2)+ 
+  geom_point(pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2)+
+  scale_x_discrete("Genotype", labels=expression(italic(S.cerevisiae), italic(S.paradoxus), Hybrid)) +
+  xlab("Group") + ylab("Growth rate (OD/hour) \n in control conditions") + scale_color_manual(values=c("green4", "dodgerblue1", "black"), 
+                                                                                              labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
+  scale_fill_manual(values=c("green4", "dodgerblue1", "#FF9999","grey"), 
+                    labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
+  theme_bw() +
+  geom_segment(aes(x=1, xend=2, y=0.87, yend=0.87)) + 
+  geom_segment(aes(x=2, xend=3, y=0.90, yend=0.90)) + 
+  geom_segment(aes(x=1, xend=3, y=0.94, yend=0.94)) +
+  annotate("text", x = 1, y = 0.98, size = 3,
+           label = c("p < 0.0001"),
+           family = "", fontface = 3)+
+  annotate("text",
+           y = c(0.89, 0.92, 0.96),
+           x = c(1.5, 2.5, 2),
+           label = c("p < 0.0001", "p > 0.05", "p < 0.01"),
+           family = "", fontface = 3, size=3) + 
+  guides(color = guide_legend(title = "Genotype")) +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 14),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"))+
+  facet_grid(.~Evolved, labeller = as_labeller(cond.labs)) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.72, "cm"))+
+  guides(fill=guide_legend(title=" "))+
+  theme(axis.title = element_text(size=14, face = "bold"),
+        strip.background = element_blank(),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
+        axis.title.x = element_blank(),
+        legend.position="none",
+        strip.text = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12))+ylim(0,1)
+
+AVB1<-AVB %>%dplyr::filter(Evolved=="Ancestor")
+AVB1<-AVB1 %>%dplyr::filter(day==2)
+
+AVB1$Specie<-as.factor(AVB1$Specie)
+amod <- aov(rval ~ Specie, data = AVB1)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Specie = "Tukey"))
+summary(inter.test1)
+cld(inter.test1)
+
+Fig_ext1_F <- daytwo %>% dplyr::filter(Evolved=="Ancestor")%>%
+  ggplot(aes(x=Specie,y=rval, col=Specie, group=Specie))+
+  geom_boxplot(outlier.shape=NA,aes(fill=Specie),col="black",alpha=0.2)+ 
+  geom_point(pch=21, aes(fill=Specie), col="black", show.legend = F, alpha=0.5,size=2)+
+  scale_x_discrete("Genotype", labels=expression(italic(S.cerevisiae), italic(S.paradoxus), Hybrid)) +
+  xlab("Group") + ylab("Growth rate (OD/hour) \n in control conditions") + scale_color_manual(values=c("green4", "dodgerblue1", "black"), 
+                                                                                              labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
+  scale_fill_manual(values=c("green4", "dodgerblue1", "#FF9999","grey"), 
+                    labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
+  theme_bw() +
+  geom_segment(aes(x=1, xend=2, y=0.87, yend=0.87)) + 
+  geom_segment(aes(x=2, xend=3, y=0.90, yend=0.90)) + 
+  geom_segment(aes(x=1, xend=3, y=0.94, yend=0.94)) +
+  annotate("text", x = 1, y = 0.98, size = 3,
+           label = c("p < 0.001"),
+           family = "", fontface = 3)+
+  annotate("text",
+           y = c(0.89, 0.92, 0.96),
+           x = c(1.5, 2.5, 2),
+           label = c("p < 0.001", "p < 0.01", "p > 0.5"),
+           family = "", fontface = 3, size=3) + 
+  guides(color = guide_legend(title = "Genotype")) +
+  theme(legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"))+
+  facet_grid(.~Evolved, labeller = as_labeller(cond.labs))+
+  theme_bw() +
+  theme(panel.spacing = unit(0.72, "cm"))+
+  guides(fill=guide_legend(title=" "))+
+  theme(axis.title = element_text(size=14, face = "bold"),
+        strip.background = element_blank(),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
+        axis.title.x = element_blank(),
+        legend.position="none",
+        strip.text = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12)) +ylim(0,1)
 #################
 ############Assemble and save Extended Figure 1############
-Fig_ext1<-plot_grid(Fig_ext1_C,Fig_ext1_B,Fig_ext1_A, nrow=1)
+Fig_ext1<-plot_grid(Fig_ext1_C,Fig_ext1_B,Fig_ext1_A,
+                    Fig_ext1_F,Fig_ext1_E,Fig_ext1_D,
+                    nrow=2)
 Fig_ext1leg <- plot_grid(legfitness, Fig_ext1, nrow=2,rel_heights = c(2,20))
 
-ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1_low_quality.jpg", units = "cm", device = "jpg",width =35, height =15, dpi = 300, bg = "white")
-ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1.png", units = "cm", device = "png",width =35, height =15, dpi = 1000, bg = "white")
-ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1.jpg", units = "cm", device = "jpg",width =35, height =15, dpi = 1000, bg = "white")
-ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1.svg", units = "cm", device = "svg",width =35, height =15, dpi = 1000, bg = "white")
-ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1.pdf", units = "cm", device = "pdf",width =35, height =15, dpi = 1000, bg = "white")
+ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1_low_quality.jpg", units = "cm", device = "jpg",width =40, height =25, dpi = 300, bg = "white")
+ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1.png", units = "cm", device = "png",width =40, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1.jpg", units = "cm", device = "jpg",width =40, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1.svg", units = "cm", device = "svg",width =40, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Fig_ext1leg, filename = "Extended_Fig1.pdf", units = "cm", device = "pdf",width =40, height =25, dpi = 1000, bg = "white")
 #################
 
 ############Figure Extended 2############
@@ -399,15 +655,10 @@ Fig_Extended_2_A <- foldchange3 %>% ggplot(aes(x = factor(specie), y = fold_chan
   geom_segment(aes(x=0.8, xend=1.2, y=0.045, yend=0.045)) + 
   geom_segment(aes(x=1.8, xend=2.2, y=0.045, yend=0.045)) + 
   geom_segment(aes(x=2.8, xend=3.2, y=0.045, yend=0.045)) +
-  geom_segment(aes(x=1, xend=2, y=0.06, yend=0.06)) +
-  geom_segment(aes(x=2, xend=3, y=0.07, yend=0.07)) +
-  geom_segment(aes(x=1, xend=3, y=0.08, yend=0.08)) +
   annotate("text",
-           y = c(0.049,0.049,0.049,0.064,0.074,0.084,0.088),
-           x = c(1,2,3,1.5,2.5,2,0.9),
-           label = c("p > 0.05", "p < 0.05", "p > 0.05",
-                     "p > 0.05","p < 0.05","p > 0.05",
-                     "p > 0.05"),
+           y = c(0.049,0.049,0.049,0.088), #,0.064,0.074,0.084,
+           x = c(1,2,3,0.9),#1.5,2.5,2,
+           label = c("p > 0.05", "p < 0.05", "p > 0.05","p > 0.05"),
            family = "", fontface = 3, size=3) +
   guides(fill = FALSE, alpha = FALSE)+
   scale_pattern_manual(legend_title,values = c(Evolved_NQO = "crosshatch", Evolved_control = "none"),
@@ -467,7 +718,7 @@ Fig_Extended_2_B_left <-ploidyfitnes2 %>% dplyr::filter(evolved=="Evolved_NQO")%
            label = c("rs = 0.029, p > 0.05"),
            family = "", fontface = 3, size=3.5) +
   ylim(0,200)+
-  xlab("DNA content (A.U. Fluorescence)") + ylab("Fitnes gain \n (%)") +
+  xlab("DNA content (A.U. Fluorescence)") + ylab("Increase in \n growth rate (%)") +
   theme_bw() +
   theme(axis.title = element_text(size=12, face = "bold"),
         strip.text = element_text(face = "bold", size = 9),
@@ -492,7 +743,7 @@ Fig_Extended_2_B_left <-ploidyfitnes2 %>% dplyr::filter(evolved=="Evolved_NQO")%
            label = c("rs = 0.029, p > 0.05"),
            family = "", fontface = 3, size=3.5) +
   ylim(0,200)+
-  xlab("DNA content (A.U. Fluorescence)") + ylab("Fitnes gain \n (%)") +
+  xlab("DNA content (A.U. Fluorescence)") + ylab("Increase in \n growth rate (%)") +
   theme_bw() +
   theme(axis.title = element_text(size=12, face = "bold"),
         strip.text = element_text(face = "bold", size = 9),
@@ -526,7 +777,7 @@ FigSuppB_scer <-ploidyfitnes2_nq %>% dplyr::filter(specie=="1Scer")%>%
            label = c("rs = -0.27, p > 0.05"),
            family = "", fontface = 3, size=3.5) +
   ylim(0,200)+
-  xlab("DNA content (A.U. Fluorescence)") + ylab("Fitnes gain \n (%)") +
+  xlab("DNA content (A.U. Fluorescence)") + ylab("Increase in \n growth rate (%)") +
   theme_bw() +
   theme(axis.title = element_text(size=12, face = "bold"),
         strip.text = element_text(face = "bold", size = 9),
@@ -549,7 +800,7 @@ FigSuppB_spar <-ploidyfitnes2_nq %>% dplyr::filter(specie=="2Spar")%>%
            label = c("rs = -0.05, p > 0.05"),
            family = "", fontface = 3, size=3.5) +
   ylim(0,200)+
-  xlab("DNA content (A.U. Fluorescence)") + ylab("Fitnes gain \n (%)") +
+  xlab("DNA content (A.U. Fluorescence)") + ylab("Increase in \n growth rate (%)") +
   theme_bw() +
   theme(axis.title = element_text(size=12, face = "bold"),
         strip.text = element_text(face = "bold", size = 9),
@@ -572,7 +823,7 @@ FigSuppB_hyb <-ploidyfitnes2_nq %>% dplyr::filter(specie=="3Hybrid")%>%
            label = c("rs = -0.084, p > 0.05"),
            family = "", fontface = 3, size=3.5) +
   ylim(0,200)+
-  xlab("DNA content (A.U. Fluorescence)") + ylab("Fitnes gain \n (%)") +
+  xlab("DNA content (A.U. Fluorescence)") + ylab("Increase in \n growth rate (%)") +
   theme_bw() +
   theme(axis.title = element_text(size=12, face = "bold"),
         strip.text = element_text(face = "bold", size = 9),
@@ -582,7 +833,6 @@ FigSuppB_hyb <-ploidyfitnes2_nq %>% dplyr::filter(specie=="3Hybrid")%>%
         plot.title = element_text(face = "italic", hjust = 0.5),
         legend.position = "none")+
   xlim(172,184)
-
 #################
 ############Assemble and save Extended Figure 2############
 Fig_Extended_2_B_right <- plot_grid(FigSuppB_scer,FigSuppB_spar,FigSuppB_hyb,ncol=1)
@@ -734,6 +984,14 @@ cond.labs <- c(
 )
 corr_aneu_5$Strain <- "3Hybrid" 
 
+ggscatter(corr_aneu_5, x = "Size_chrom2", y = "sum_counts",
+          color = "black", shape = 21, size = 3,
+          add = "reg.line",  
+          add.params = list(color = "blue", fill = "lightgray"), 
+          cor.coef = TRUE,
+          cor.coeff.args = list(method = "spearman", label.x = 0.25, label.sep = "\n"))
+
+
 Fig_ext4_A <-corr_aneu_5 %>%filter(sum_counts>0)%>%
   ggplot(aes(x=Size_chrom2,y = sum_counts))+
   stat_smooth(method="lm", alpha=0.1)+
@@ -829,6 +1087,13 @@ FITNESS_LOH_nq<- FITNESS_LOH_nq %>% dplyr::filter(Replicate!=10)
 FITNESS_LOH_nq_hyb<-dplyr::filter(FITNESS_LOH_nq,Specie=="3Hybrid")
 FITNESS_LOH_nq_hyb$new_counts <- FITNESS_LOH_nq_hyb$counts /2
 
+ggscatter(FITNESS_LOH_nq_hyb, x = "new_counts", y = "percentage",
+          color = "black", shape = 21, size = 3,
+          add = "reg.line",  
+          add.params = list(color = "blue", fill = "lightgray"), 
+          cor.coef = TRUE,
+          cor.coeff.args = list(method = "spearman", label.x = 0.25, label.sep = "\n"))
+
 Fig_ext4_B <- FITNESS_LOH_nq_hyb %>% dplyr::filter(Type=="Evolved_NQO")%>%
   ggplot(aes(x=new_counts,y = percentage))+
   stat_smooth(method="lm", alpha=0.1)+
@@ -838,7 +1103,7 @@ Fig_ext4_B <- FITNESS_LOH_nq_hyb %>% dplyr::filter(Type=="Evolved_NQO")%>%
            family = "", fontface = 3, size=3.5) + 
   geom_point(position=position_jitterdodge(jitter.width=0.5, dodge.width = 0), 
              pch=21, aes(fill=Type), col="black", show.legend = F, alpha=0.5,size=2)+
-  xlab("Number of LOH / line")+ylab("Fitness gain (%)")+
+  xlab("Number of LOH / line")+ylab("Increase in growth rate (%)")+
   border()  +
   scale_fill_manual(values=c("#FF9999"), 
                     labels = toexpr(c("Hybrid"))) +
@@ -855,7 +1120,6 @@ Fig_ext4_B <- FITNESS_LOH_nq_hyb %>% dplyr::filter(Type=="Evolved_NQO")%>%
         axis.text.x = element_text(size=8),
         axis.text.y = element_text(size=8),
         panel.background = element_blank()) +theme(strip.text.x = element_blank())
-
 #################
 ############Assemble and save Extended Figure 4############
 Fig4A_label<- plot_grid(Fig_ext4_A,labels="a",label_size=15)
@@ -906,7 +1170,6 @@ SNP_after_norm2<-Extended_SNPs %<>% mutate(chrom2 = ifelse(CHROM=="utg351_pilon"
                                                                                                                                                                                                                                                                                       ifelse(CHROM=="chrXV","Scer chrXV",
                                                                                                                                                                                                                                                                                              ifelse(CHROM=="chrXVI","Scer chrXVI",NA)))))))))))))))))))))))))))))))))))
 SNP_after_norm2$sample <- paste(SNP_after_norm2$Strain,SNP_after_norm2$Replicate,SNP_after_norm2$condition, sep="")
-
 SNP_after_norm2_nooutliers <- SNP_after_norm2 %>% dplyr::filter(sample!="1Scer10NQO")
 SNP_after_norm2_nooutliers <- SNP_after_norm2_nooutliers %>% dplyr::filter(sample!="2Spar1NQO")
 SNP_after_norm2_nooutliers <- SNP_after_norm2_nooutliers %>% dplyr::filter(sample!="2Spar3NQO")
@@ -969,10 +1232,11 @@ p_meds <- rows.per.group_nqo%>%
 
 my_comparisons <- list( c("NQO.1Scer", "NQO.2Spar"), c("NQO.1Scer", "NQO.3Hybrid"), c("NQO.2Spar", "NQO.3Hybrid") )
 
+legend_title <- " "
 Fig5SuppA_1 <- rows.per.group %>% dplyr:::filter(Type=="NQO") %>%
   ggplot(aes(x=interaction(Type,Strain),y=Counts)) +
   geom_boxplot(aes(fill=Strain))+
-  geom_point()+
+  geom_point(colour="black",pch=21,size=2, aes(fill=Strain))+
   scale_fill_manual(legend_title,values=c("green4", "dodgerblue1", "#FF9999"), 
                     labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid")))+
   background_grid(
@@ -1014,7 +1278,7 @@ legend_title<- " "
 Fig5SuppA_2 <- rows.per.group %>% dplyr::filter(Type=="control") %>%
   ggplot(aes(x=interaction(Type,Strain),y=Counts)) +
   geom_boxplot(aes(fill=Strain))+
-  geom_point()+
+  geom_point(colour="black",pch=21,size=2, aes(fill=Strain))+
   scale_fill_manual(legend_title,values=c("green4", "dodgerblue1", "#FF9999"), 
                     labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid")))+
   background_grid(
@@ -1054,7 +1318,7 @@ leg <- get_legend(Fig5SuppA_2)
 Fig5SuppA_2 <- rows.per.group %>% dplyr::filter(Type=="control") %>%
   ggplot(aes(x=interaction(Type,Strain),y=Counts)) +
   geom_boxplot(aes(fill=Strain))+
-  geom_point()+
+  geom_point(colour="black",pch=21,size=2, aes(fill=Strain))+
   scale_fill_manual(legend_title,values=c("green4", "dodgerblue1", "#FF9999"), 
                     labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid")))+
   background_grid(
@@ -1110,8 +1374,9 @@ toexpr<-function(x) {
 }
 
 Fig5SuppB_1 <- con %>% dplyr::filter(Type=="control") %>%
-  ggplot(aes(x=Strain,y=Counts)) +geom_boxplot(aes(fill=Strain))+
-  geom_point()+
+  ggplot(aes(x=Strain,y=Counts)) +
+  geom_boxplot(aes(fill=Strain))+
+  geom_point(colour="black",pch=21,size=2, aes(fill=Strain))+
   background_grid(
     major = c("xy"),
     minor = c("y"),
@@ -1144,8 +1409,9 @@ Fig5SuppB_1 <- con %>% dplyr::filter(Type=="control") %>%
   ylim(0,450)
 
 Fig5SuppB_2 <- nq %>% dplyr::filter(Type=="NQO") %>%
-  ggplot(aes(x=Strain,y=Counts)) +geom_boxplot(aes(fill=Strain))+
-  geom_point()+
+  ggplot(aes(x=Strain,y=Counts)) +
+  geom_boxplot(aes(fill=Strain))+
+  geom_point(colour="black",pch=21,size=2, aes(fill=Strain))+
   background_grid(
     major = c("xy"),
     minor = c("y"),
@@ -1351,6 +1617,504 @@ ggsave (plot = Fig4ABleg, filename = "Extended_Fig8.pdf", units = "cm", device =
 #################
 
 ############Figure Extended 9############
+#Figure A
+all_arranged2<- Extended9_boxplot
+
+all_arranged_BY<- all_arranged2 %>% filter(Specie=="BY")
+Figure1E_BY <- all_arranged_BY %>% filter(Condition.y=="NQO_4μM")%>% 
+  ggplot(aes(x=interaction(Type2,Specie), y=rval,group=interaction(Specie,Type2))) +
+  geom_point(colour="black",pch=21,height = 0, size=2, aes(fill=as.factor(Type2)))+
+  geom_boxplot(outlier.shape = NA,aes(col=Mutation,fill=Mutation,alpha=0.7, group=interaction(Specie,Type2)))+
+  scale_color_manual(values = c("Heterozygous" = "mediumpurple3", "Homozygous" = "#21908CFF", "Ancestral_homozygous" = "gray30", "Haploid"="antiquewhite1"))+
+  scale_fill_manual(values = c("Heterozygous" = "mediumpurple3", "Homozygous" = "#21908CFF", "Ancestral_homozygous" = "gray30", "Haploid"="antiquewhite1"))+
+  ylab("Growth rate \n (OD/hour)") +
+  xlab("")+
+  theme_bw() +
+  facet_grid(.~Specie)+
+  theme(axis.title = element_text(size=20, face = "bold"),
+        strip.text = element_text(face = "bold", size = 9),
+        strip.background = element_blank(),
+        axis.text.x = element_text(size=12,face = "bold"),
+        axis.text.y = element_text(size=12,face = "bold"),
+        panel.background = element_blank(),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=9))+
+  ylim(0,0.7)+
+  theme(axis.text.x = element_text(angle = 90))
+
+#make pvalue
+all_arranged_BY<- all_arranged2 %>% filter(Specie=="BY")
+all_arranged_BY$Specie<-"S.cerevisiae - BY4743" 
+
+all_arranged_BY$Type2 <- as.factor(all_arranged_BY$Type2)
+amod <- aov(rval~Type2, data=all_arranged_BY)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Type2= "Tukey"))
+summary(amod)
+summary(inter.test1)
+cld(inter.test1)
+
+all_arranged_BY<- all_arranged2 %>% filter(Specie=="Hybrid")
+
+all_arranged_BY$Type2 <- as.factor(all_arranged_BY$Type2)
+amod <- aov(rval~Type2, data=all_arranged_BY)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Type2= "Tukey"))
+summary(amod)
+summary(inter.test1)
+cld(inter.test1)
+
+all_arranged_BY<- all_arranged2 %>% filter(Specie=="Spar")
+
+all_arranged_BY$Type2 <- as.factor(all_arranged_BY$Type2)
+amod <- aov(rval~Type2, data=all_arranged_BY)
+summary(amod)
+inter.test1 <- glht(amod,  mcp(Type2= "Tukey"))
+summary(amod)
+summary(inter.test1)
+cld(inter.test1)
+
+all_arranged_BY<- all_arranged2 %>% filter(Specie=="BY")
+all_arranged_BY$Specie<-"S.cerevisiae - BY4743" 
+
+legend_title<-""
+Figure1E_BY <- all_arranged_BY %>% filter(Condition.y == "NQO_4μM") %>%
+  ggplot(aes(x = Type2, y = rval)) +
+  geom_boxplot(colour = "black", outlier.shape = NA, aes(colour = "black", fill = Type2)) +
+  geom_point(colour = "black", pch = 21, size = 2, aes(fill = Type2)) +
+  scale_fill_manual(legend_title,
+                    values = c("gray30","mediumpurple3","#21908CFF"),
+                    limits=c("Heterozygous",
+                             "Homozygous",
+                             "Ancestral_homozygous"),
+                    breaks= c("Heterozygous",
+                              "Homozygous",
+                              "Ancestral_homozygous"),
+                    labels= c("No mutation",
+                              "Heterozygous",
+                              "Homozygous")) +
+  scale_x_discrete(limits=c("Ancestral_homozygous",
+                            "Heterozygous",
+                            "Homozygous"),
+                   breaks= c("Ancestral_homozygous",
+                             "Heterozygous",
+                             "Homozygous"),
+                   labels= c("No \n mutation",
+                             "Heterozygous",
+                             "Homozygous"))+
+  ylab("Growth rate (OD/hour)") +theme_bw() +
+  ylim(0,0.65)+
+  theme(axis.title = element_text(size=20, face = "bold"),
+        axis.text.y = element_text(size=14, face = "bold"),
+        axis.title.x = element_blank(),
+        panel.background = element_blank(),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=9),
+        strip.background = element_rect(fill = "white"),
+        strip.text.x = element_text(size = 19),
+        axis.text.x = element_text(size=14, face = "bold"),
+        strip.text = element_text(size = 14))+
+  theme(strip.text = element_text(face = "italic"))+
+  annotate("text",
+           y = c(0.64),
+           x = c(1),
+           label = c("p < 0.001"),
+           family = "", fontface = 3, size=5)+
+  theme(legend.direction="horizontal",
+        legend.key.width = unit(8, 'mm'),
+        legend.key.height = unit(8, 'mm'),
+        legend.text = element_text(size = 12))
+
+leg <- get_legend(Figure1E_BY)
+
+labels_custom <- function(variable, value) {
+  return(lapply(value, function(x) {
+    bquote(italic(S.~cerevisiae) ~ "- BY4743")
+  }))
+}
+
+Figure1E_BY <- all_arranged_BY %>% filter(Condition.y == "NQO_4μM") %>%
+  ggplot(aes(x = Type2, y = rval)) +
+  geom_boxplot(colour = "black", outlier.shape = NA, aes(colour = "black", fill = Type2, alpha = 0.7)) +
+  geom_point(colour = "black", pch = 21, size = 2, aes(fill = Type2)) +
+  scale_fill_manual(
+    values = c("mediumpurple3",
+               "#21908CFF","gray30"),
+    limits=c("Heterozygous",
+             "Homozygous",
+             "Ancestral_homozygous"),
+    breaks= c("Heterozygous",
+              "Homozygous",
+              "Ancestral_homozygous")) +
+  scale_x_discrete(limits=c("Ancestral_homozygous",
+                            "Heterozygous",
+                            "Homozygous"),
+                   breaks= c("Ancestral_homozygous",
+                             "Heterozygous",
+                             "Homozygous"),
+                   labels= c("No \n mutation",
+                             "Heterozygous",
+                             "Homozygous"))+
+  ylab("Growth rate (OD/hour)") +theme_bw() +
+  theme(legend.position = "none")+
+  facet_grid(. ~ Specie, labeller = labels_custom)+
+  ylim(0,0.65)+
+  theme(axis.title = element_text(size=20, face = "bold"),
+        axis.text.y = element_text(size=14, face = "bold"),
+        axis.title.x = element_blank(),
+        panel.background = element_blank(),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=9),
+        strip.background = element_rect(fill = "white"),
+        strip.text.x = element_text(size = 19),
+        axis.text.x = element_text(size=14, face = "bold"),
+        strip.text = element_text(size = 14))+
+  theme(strip.text = element_text(face = "italic"))+
+  annotate("text",
+           y = c(0.64),
+           x = c(1),
+           label = c("p < 0.05"),
+           family = "", fontface = 3, size=5)
+
+all_arranged_BY2<- all_arranged2 %>% filter(Specie=="Hybrid")
+
+outcome_labels <- c("No mutation", 
+                    "Heterozygous /n Spar", 
+                    "Heterozygous /n Scer",
+                    "Homozygous")
+
+
+Figure1E_BY2 <- all_arranged_BY2 %>% filter(Condition.y == "NQO_4μM") %>%
+  ggplot(aes(x = Type2, y = rval)) +
+  geom_boxplot(colour = "black", outlier.shape = NA, aes(colour = "black", fill = Type2, alpha = 0.7)) +
+  geom_point(colour = "black", pch = 21, size = 2, aes(fill = Type2)) +
+  scale_fill_manual(
+    values = c("mediumpurple3", "mediumpurple3",
+               "#21908CFF","gray30"),
+    limits=c("Heterozygous_BY-M308I",
+             "Heterozygous_Spar-M308I",
+             "Homozygous",
+             "Ancestral_homozygous"),
+    breaks= c("Heterozygous_BY-M308I",
+              "Heterozygous_Spar-M308I",
+              "Homozygous",
+              "Ancestral_homozygous")) +
+  scale_x_discrete(limits=c("Ancestral_homozygous",
+                            "Heterozygous_BY-M308I",
+                            "Heterozygous_Spar-M308I",
+                            "Homozygous"),
+                   breaks= c("Ancestral_homozygous",
+                             "Heterozygous_BY-M308I",
+                             "Heterozygous_Spar-M308I",
+                             "Homozygous"),
+                   labels= c("No \n mutation",
+                             "Heterozygous \n Scer-M308I",
+                             "Heterozygous \n Spar-M307I",
+                             "Homozygous"))+
+  ylab("Growth rate (OD/hour)") +theme_bw() +
+  theme(legend.position = "none")+
+  facet_grid(. ~ Specie)+
+  ylim(0,0.65)+
+  theme(axis.title = element_text(size=20, face = "bold"),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        panel.background = element_blank(),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=9),
+        strip.background = element_rect(fill = "white"),
+        strip.text.x = element_text(size = 19),
+        axis.ticks.y =element_blank(),
+        axis.text.x = element_text(size=14, face = "bold"),
+        strip.text = element_text(size = 14))+
+  annotate("text",
+           y = c(0.64),
+           x = c(1),
+           label = c("p < 0.0001"),
+           family = "", fontface = 3, size=5) 
+
+all_arranged_BY3<- all_arranged2 %>% filter(Specie=="Spar")
+
+labels_custom <- function(variable, value) {
+  return(lapply(value, function(x) {
+    bquote(italic(S.~paradoxus) ~ " ")
+  }))
+}
+
+all_arranged_BY3$Specie<-"S.paradoxus" 
+Figure1E_BY3 <- all_arranged_BY3 %>% filter(Condition.y == "NQO_4μM") %>%
+  ggplot(aes(x = Type2, y = rval)) +
+  geom_boxplot(colour = "black", outlier.shape = NA, aes(colour = "black", fill = Type2, alpha = 0.7)) +
+  geom_point(colour = "black", pch = 21, size = 2, aes(fill = Type2)) +
+  scale_fill_manual(
+    values = c("mediumpurple3",
+               "#21908CFF","gray30"),
+    limits=c("Heterozygous",
+             "Homozygous",
+             "Ancestral_homozygous"),
+    breaks= c("Heterozygous",
+              "Homozygous",
+              "Ancestral_homozygous")) +
+  scale_x_discrete(limits=c("Ancestral_homozygous",
+                            "Heterozygous",
+                            "Homozygous"),
+                   breaks= c("Ancestral_homozygous",
+                             "Heterozygous",
+                             "Homozygous"),
+                   labels= c("No \n mutation",
+                             "Heterozygous",
+                             "Homozygous"))+
+  ylab("Growth rate (OD/hour)") +theme_bw() +
+  theme(legend.position = "none")+
+  facet_grid(. ~ Specie, labeller = labels_custom)+
+  ylim(0,0.65)+
+  theme(axis.title = element_text(size=20, face = "bold"),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        panel.background = element_blank(),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=9),
+        strip.background = element_rect(fill = "white"),
+        strip.text.x = element_text(size = 19),
+        axis.ticks.y =element_blank(),
+        axis.text.x = element_text(size=14, face = "bold"),
+        strip.text = element_text(size = 14))+
+  theme(strip.text = element_text(face = "italic"))+
+  annotate("text",
+           y = c(0.64),
+           x = c(1),
+           label = c("p < 0.001"),
+           family = "", fontface = 3, size=5) 
+
+#Arrange a
+Figure1E_BY4<-plot_grid(Figure1E_BY,Figure1E_BY2,Figure1E_BY3,nrow=1,rel_widths = c(1.2,1.3,1))
+FigureSuppAleg<-plot_grid(leg, Figure1E_BY4,nrow=2,rel_heights = c(1,7))
+
+#Figure B
+all_arranged2 <- Extended9_curves
+all_arranged2<- all_arranged2%>% filter(Condition.y!="Control")
+all_arranged_BY<- all_arranged2 %>% filter(Specie=="BY")
+
+Figure1E_BY <- all_arranged_BY %>%  dplyr::filter(hour<21)%>%
+  ggplot( aes(y=od,x=hour,group=interaction(Type,Replicate,Mutation,Assay))) +
+  scale_shape_identity() +  
+  geom_line(aes(col=Mutation, alpha=0.4)) +
+  ylab("OD \n (595 nm)")+xlab("Time (hours)")+
+  theme_bw() +theme(legend.position = "none")+
+  theme(axis.text.x = element_text(size=7)) +
+  scale_color_manual(values = c("Heterozygous" = "mediumpurple3", "Homozygous" = "#21908CFF", "No mutation" = "gray30"),
+                     labels = c("Heterozygous" = "Heterozygous PDR1 mutation","No mutation" = "No PDR1 mutation", "Homozygous" = "Homozygous PDR1 mutation")) +
+  theme(axis.title = element_text(size=20, face = "bold"),
+        strip.text = element_text(face = "bold", size = 9),
+        strip.background = element_blank(),
+        axis.text.x = element_text(size=16,face = "bold"),
+        axis.text.y = element_text(size=16,face = "bold"),
+        panel.background = element_blank(),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=9))+
+  theme(strip.text.x = element_text(size = 12),    
+        strip.text.y = element_text(size = 12),      
+        strip.background = element_rect(fill = "white"))+
+  ylab("OD (595 nm)")+xlab("Time (hours)")
+
+all_arranged_BY<- all_arranged2 %>% filter(Specie=="BY")
+all_arranged_BY$Specie<-"S.cerevisiae - BY4743" 
+
+labels_custom <- function(variable, value) {
+  return(lapply(value, function(x) {
+    bquote(italic(S.~cerevisiae) ~ "- BY4743")
+  }))
+}
+
+Figure1E_BY <- all_arranged_BY %>%  dplyr::filter(hour<21)%>%
+  ggplot( aes(y=od,x=hour,group=interaction(Type2,Type,Replicate,Mutation,Assay))) +
+  scale_shape_identity() +  
+  geom_line(aes(col=Mutation, alpha=0.4)) +
+  facet_grid(. ~ Specie, labeller = labels_custom)+
+  ylab("OD \n (595 nm)")+xlab("Time (hours)")+
+  theme_bw() +theme(legend.position = "none")+
+  theme(axis.text.x = element_text(size=7)) +
+  scale_color_manual(values = c("Heterozygous" = "mediumpurple3", "Homozygous" = "#21908CFF", "No mutation" = "gray30"),
+                     labels = c("Heterozygous" = "Heterozygous PDR1 mutation","No mutation" = "No PDR1 mutation", "Homozygous" = "Homozygous PDR1 mutation")) +
+  theme(axis.title = element_text(size=20, face = "bold"),
+        axis.text.y = element_text(size=14, face = "bold"),
+        panel.background = element_blank(),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=9),
+        strip.background = element_rect(fill = "white"),
+        strip.text.x = element_text(size = 19),
+        axis.text.x = element_text(size=14, face = "bold"),
+        strip.text = element_text(size = 14))+
+  theme(strip.text = element_text(face = "italic"))+
+  ylab("OD (595 nm)")+xlab("Time (hours)")
+
+all_arranged_BY2<- all_arranged2 %>% filter(Specie=="Hybrid")
+
+##add data for legend purposes
+data_leg <- data.frame(
+  Well = c("...1"),
+  Day = c(1),
+  Plate = c("Plate1"),
+  Condition.x = c("Condition1"),
+  time = c(0),
+  od = c(NA),
+  Specie = c("Hybrid"),
+  Type = c("Type1"),
+  Line = c("Line1"),
+  Replicate = c(1),
+  Mutation = c("Heterozygous"),
+  Condition.y = c("Condition1"),
+  Assay = c("Assay1"),
+  hour = c(0),
+  Type2 = c("Heterozygous")
+)
+
+all_arranged_BY2B <-all_arranged_BY2[, -c(1, 2)]
+
+all_arranged_BY2B<-rbind(data_leg,all_arranged_BY2B)
+
+legend_title <- ""
+Figure1E_BY2 <- all_arranged_BY2B %>% dplyr::filter(hour<21)%>%
+  ggplot( aes(y=od,x=hour,group=interaction(Type2,Type,Replicate,Mutation,Assay))) +
+  scale_shape_identity() +  
+  geom_line(aes(col=Type2)) +
+  scale_color_manual(legend_title,
+                     values = c("mediumpurple3",
+                                "darkblue",
+                                "magenta3",
+                                "#21908CFF",
+                                "gray30"),
+                     limits=c("Heterozygous",
+                              "Heterozygous_BY-M308I",
+                              "Heterozygous_Spar-M308I",
+                              "Homozygous",
+                              "Ancestral_homozygous"),
+                     breaks= c("Heterozygous",
+                               "Heterozygous_BY-M308I",
+                               "Heterozygous_Spar-M308I",
+                               "Homozygous",
+                               "Ancestral_homozygous"),
+                     labels= c("Heterozygous",
+                               "Heterozygous Scer-M308I",
+                               "Heterozygous Spar-M307I",
+                               "Homozygous",
+                               "No mutation")) +
+  ylab("Growth rate (OD/hour)") +theme_bw() +
+  theme(legend.direction =  "horizontal")+
+  theme(axis.title = element_text(size=20, face = "bold"),
+        axis.text.y = element_text(size=14, face = "bold"),
+        axis.title.x = element_blank(),
+        panel.background = element_blank(),
+        legend.title = element_text(size=9),
+        strip.background = element_rect(fill = "white"),
+        strip.text.x = element_text(size = 19),
+        axis.text.x = element_text(size=14, face = "bold"),
+        strip.text = element_text(size = 14),
+        legend.key.width = unit(8, 'mm'),
+        legend.key.height = unit(8, 'mm'),
+        legend.text = element_text(size = 12))
+
+leg <- get_legend(Figure1E_BY2)
+
+Figure1E_BY2 <- all_arranged_BY2 %>% dplyr::filter(hour<21)%>%
+  ggplot( aes(y=od,x=hour,group=interaction(Type2,Type,Replicate,Mutation,Assay))) +
+  scale_shape_identity() +  
+  geom_line(aes(col=Type2, alpha=0.4)) +
+  scale_color_manual(
+    values = c("darkblue", "magenta3",
+               "#21908CFF","gray30"),
+    limits=c("Heterozygous_BY-M308I",
+             "Heterozygous_Spar-M308I",
+             "Homozygous",
+             "Ancestral_homozygous"),
+    breaks= c("Heterozygous_BY-M308I",
+              "Heterozygous_Spar-M308I",
+              "Homozygous",
+              "Ancestral_homozygous")) +
+  ylab("Growth rate (OD/hour)") +theme_bw() +
+  facet_grid(. ~ Specie)+
+  theme(legend.position = "none")+
+  theme(axis.title = element_text(size=20, face = "bold"),
+        panel.background = element_blank(),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=9),
+        strip.background = element_rect(fill = "white"),
+        strip.text.x = element_text(size = 19),
+        axis.text.y =element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y =element_blank(),
+        axis.text.x = element_text(size=14, face = "bold"),
+        strip.text = element_text(size = 14))+
+  ylab("OD (595 nm)")+xlab("Time (hours)")
+
+outcome_labels <- c("No mutation", 
+                    "Heterozygous /n Spar", 
+                    "Heterozygous /n Scer",
+                    "Homozygous")
+
+all_arranged_BY3<- all_arranged2 %>% filter(Specie=="Spar")
+
+all_arranged_BY3$Specie<-"S.paradoxus" 
+
+labels_custom <- function(variable, value) {
+  return(lapply(value, function(x) {
+    bquote(italic(S.~paradoxus) ~ " ")
+  }))
+}
+
+Figure1E_BY3 <- all_arranged_BY3 %>%  dplyr::filter(hour<21)%>%
+  ggplot( aes(y=od,x=hour,group=interaction(Type2,Type,Replicate,Mutation,Assay))) +
+  scale_shape_identity() +  
+  geom_line(aes(col=Type2, alpha=0.4)) +
+  facet_grid(. ~ Specie, labeller = labels_custom)+
+  scale_color_manual(
+    values = c("mediumpurple3",
+               "#21908CFF","gray30"),
+    limits=c("Heterozygous",
+             "Homozygous",
+             "Ancestral_homozygous"),
+    breaks= c("Heterozygous",
+              "Homozygous",
+              "Ancestral_homozygous")) +
+  ylab("Growth rate (OD/hour)") +theme_bw() +
+  theme(legend.position = "none")+
+  theme(axis.title = element_text(size=20, face = "bold"),
+        panel.background = element_blank(),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=9),
+        strip.background = element_rect(fill = "white"),
+        strip.text.x = element_text(size = 19),
+        axis.text.y =element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y =element_blank(),
+        axis.text.x = element_text(size=14, face = "bold"),
+        strip.text = element_text(size = 14))+
+  theme(strip.text = element_text(face = "italic"))+
+  ylab("OD (595 nm)")+xlab("Time (hours)")
+
+#arrange b
+Figure1E_BY4<-plot_grid(Figure1E_BY,Figure1E_BY2,Figure1E_BY3,nrow=1,rel_widths = c(1.2,1.3,1))
+FigureSuppBleg<-plot_grid(leg, Figure1E_BY4,nrow=2,rel_heights = c(1,7))
+
+#################
+############Assemble and save Extended Figure 9############
+###Save panels 
+FigA_label<- plot_grid(FigureSuppAleg,labels="a",label_size=32)
+FigB_label<- plot_grid(FigureSuppBleg,labels="b",label_size=32)
+
+FigureSuppleg<-plot_grid(FigA_label,FigB_label,nrow=2)
+
+Fig_Extended_9<-FigureSuppleg
+
+ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9_low_quality.jpg", units = "cm", device = "jpg",width = 45, height =25, dpi = 300, bg = "white")
+ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9.png", units = "cm", device = "png",width = 45, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9.jpg", units = "cm", device = "jpg",width = 45, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9.svg", units = "cm", device = "svg",width = 45, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9.pdf", units = "cm", device = "pdf",width = 45, height =25, dpi = 1000, bg = "white")
+#################
+
+############Figure Extended 10############
 #Hybrid 13
 Hybrid <- dplyr::filter(Extended_expevol, strain=="3Hybrid")
 Hybrid_30 <- dplyr::filter(Hybrid, rep==13)
@@ -1381,7 +2145,7 @@ scer25_1<- ggplot(data=Hybrid_30_NQO, aes(x=as.numeric(day), y=rval)) +
 
 scer25_1<-scer25_1 + scale_color_grey() + theme_classic() 
 
-loh_table <- Extended9_LOH_line13_final
+loh_table <- Extended10_LOH_line13_final
 
 loh_table$day <-loh_table$Time
 loh_table$Cycle <-loh_table$day
@@ -1416,7 +2180,7 @@ scer25_3<- ggplot(loh_tableB, aes(fill=Mutation, x=Cycle)) +
   ylab("Relative Frequency")+xlab("Time (Cycle)")+
   scale_fill_manual(values = c("mediumpurple3", "#21908CFF","gray30")) 
 
-data<-Extended9_LOH_parents_table_proportion_hybrid %>% dplyr::filter(Replicate==13)
+data<-Extended10_LOH_parents_table_proportion_hybrid %>% dplyr::filter(Replicate==13)
 
 scer25_4<- ggplot(data, aes(x=Time, y=percentage, fill=Mutation)) + 
   geom_area(alpha=0.6 , size=1, colour="black",pos = "stack") +
@@ -1463,7 +2227,7 @@ scer25_1<- ggplot(data=Hybrid_30_NQO, aes(x=as.numeric(day), y=rval)) +
 
 scer25_1<-scer25_1 + scale_color_grey() + theme_classic() 
 
-loh_table <- Extended9_LOH_line28_final
+loh_table <- Extended10_LOH_line28_final
 
 loh_table$day <-loh_table$Time
 loh_table$Cycle <-loh_table$day
@@ -1499,7 +2263,7 @@ scer25_3<- ggplot(loh_tableB, aes(fill=Mutation, x=Cycle)) +
   ylab("Relative Frequency")+xlab("Time (Cycle)")+
   scale_fill_manual(values = c("mediumpurple3", "#21908CFF","gray30")) 
 
-data<-Extended9_LOH_parents_table_proportion_hybrid %>% dplyr::filter(Replicate==28)
+data<-Extended10_LOH_parents_table_proportion_hybrid %>% dplyr::filter(Replicate==28)
 
 scer25_4<- ggplot(data, aes(x=Time, y=percentage, fill=Mutation)) + 
   geom_area(alpha=0.6 , size=1, colour="black",pos = "stack") +
@@ -1546,7 +2310,7 @@ scer25_1<- ggplot(data=Hybrid_30_NQO, aes(x=as.numeric(day), y=rval)) +
 
 scer25_1<-scer25_1 + scale_color_grey() + theme_classic() 
 
-loh_table <- Extended9_LOH_line30_final
+loh_table <- Extended10_LOH_line30_final
 
 loh_table$day <-loh_table$Time
 loh_table$Cycle <-loh_table$day
@@ -1584,7 +2348,7 @@ scer25_3<- ggplot(loh_tableB, aes(fill=Mutation, x=Cycle)) +
 loh_table<-loh_table %<>% mutate(LOH_other_positions= ifelse(LOH_1=="Heterozygous","No",
                                                              ifelse(LOH_1=="Homozygous","Yes",NA)))
 
-data<-Extended9_LOH_parents_table_proportion_hybrid %>% dplyr::filter(Replicate==30)
+data<-Extended10_LOH_parents_table_proportion_hybrid %>% dplyr::filter(Replicate==30)
 
 scer25_4<- ggplot(data, aes(x=Time, y=percentage, fill=Mutation)) + 
   geom_area(alpha=0.6 , size=1, colour="black",pos = "stack") +
@@ -1629,9 +2393,9 @@ scer25_1<- ggplot(data=Hybrid_30_NQO, aes(x=as.numeric(day), y=rval)) +
   geom_point() + scale_x_continuous(breaks = as.numeric(Hybrid_30_NQO$day))+xlab("Time (Cycle)")+
   ylab("Growth rate (OD/hour)")
 
-scer25_1<-scer25_1 + scale_color_grey() + theme_classic() #+ ggtitle ("Line 30") + theme(plot.title = element_text(hjust = 0.5, size=20))
+scer25_1<-scer25_1 + scale_color_grey() + theme_classic() 
 
-loh_table<-Extended9_LOH_table_parents
+loh_table<-Extended10_LOH_table_parents
 loh_table$day <-loh_table$Time
 loh_table$Cycle <-loh_table$day
 loh_tableB <- dplyr::filter(loh_table, Genotype=="Scer")
@@ -1666,7 +2430,7 @@ scer25_3<- ggplot(loh_tableB, aes(fill=Mutation, x=Cycle)) +
   ylab("Relative Frequency")+xlab("Time (Cycle)")+
   scale_fill_manual(values = c("#21908CFF", "gray30")) 
 
-data<-dplyr::filter(Extended9_LOH_parents_table_proportion, Replicate==25)
+data<-dplyr::filter(Extended10_LOH_parents_table_proportion, Replicate==25)
 
 scer25_4<- ggplot(data, aes(x=Time, y=percentage, fill=Mutation)) + 
   geom_area(alpha=0.6 , size=1, colour="black",pos = "stack") +
@@ -1712,7 +2476,7 @@ spar22_1 <- ggplot(data=Hybrid_30_NQO, aes(x=as.numeric(day), y=rval)) +
   
 spar22_1<-spar22_1 + scale_color_grey() + theme_classic() 
 
-loh_table<-Extended9_LOH_table_parents
+loh_table<-Extended10_LOH_table_parents
 loh_table$day <-loh_table$Time
 loh_table$Cycle <-loh_table$day
 loh_tableB <- dplyr::filter(loh_table, Genotype=="Spar")
@@ -1741,14 +2505,13 @@ spar22_2<- ggplot(loh_tableB, aes(fill=Codon, x=Cycle)) +
     theme_classic() +
     ylab("Relative Frequency")+xlab("Time (Cycle)")
   
-  
 spar22_3<- ggplot(loh_tableB, aes(fill=Mutation, x=Cycle)) + 
     geom_bar(position="fill", stat="count") + scale_x_continuous(breaks = as.numeric(loh_table$Cycle)) +
     theme_classic() + 
     ylab("Relative Frequency")+xlab("Time (Cycle)")+
     scale_fill_manual(values = c("mediumpurple3", "#21908CFF","gray30")) 
   
-data<-dplyr::filter(Extended9_LOH_parents_table_proportion, Replicate==22)
+data<-dplyr::filter(Extended10_LOH_parents_table_proportion, Replicate==22)
 
 spar22_4<- ggplot(data, aes(x=Time, y=percentage, fill=Mutation)) + 
     geom_area(alpha=0.6 , size=1, colour="black",pos = "stack") +
@@ -1794,7 +2557,7 @@ scer2_1 <- ggplot(data=Hybrid_30_NQO, aes(x=as.numeric(day), y=rval)) +
 
 scer2_1<-scer2_1+ scale_color_grey() + theme_classic() 
 
-loh_table<-Extended9_LOH_table_parents
+loh_table<-Extended10_LOH_table_parents
 loh_table$day <-loh_table$Time
 loh_table$Cycle <-loh_table$day
 loh_tableB <- dplyr::filter(loh_table, Genotype=="Scer")
@@ -1830,7 +2593,7 @@ scer2_3<- ggplot(loh_tableB, aes(fill=Mutation, x=Cycle)) +
       ylab("Relative Frequency")+xlab("Time (Cycle)")+
       scale_fill_manual(values = c("mediumpurple3", "#21908CFF","gray30")) 
     
-data<-dplyr::filter(Extended9_LOH_parents_table_proportion, Replicate==2)
+data<-dplyr::filter(Extended10_LOH_parents_table_proportion, Replicate==2)
     
 scer2_4<- ggplot(data, aes(x=Time, y=percentage, fill=Mutation)) + 
       geom_area(alpha=0.6 , size=1, colour="black",pos = "stack") +
@@ -1876,7 +2639,7 @@ spar24_1 <- ggplot(data=Hybrid_30_NQO, aes(x=as.numeric(day), y=rval)) +
       
 spar24_1<-spar24_1 + scale_color_grey() + theme_classic() #+ ggtitle ("Line 30") + theme(plot.title = element_text(hjust = 0.5, size=20))
 
-loh_table<-Extended9_LOH_table_parents
+loh_table<-Extended10_LOH_table_parents
 loh_table$day <-loh_table$Time
 loh_table$Cycle <-loh_table$day
 loh_tableB <- dplyr::filter(loh_table, Genotype=="Spar")
@@ -1911,7 +2674,7 @@ spar24_3<- ggplot(loh_tableB, aes(fill=Mutation, x=Cycle)) +
         ylab("Relative Frequency")+xlab("Time (Cycle)")+
         scale_fill_manual(values = c("mediumpurple3", "#21908CFF","gray30","red")) 
       
-data<-dplyr::filter(Extended9_LOH_parents_table_proportion, Replicate==24)
+data<-dplyr::filter(Extended10_LOH_parents_table_proportion, Replicate==24)
 
 spar24_4<- ggplot(data, aes(x=Time, y=percentage, fill=Mutation)) + 
         geom_area(alpha=0.6 , size=1, colour="black",pos = "stack") +
@@ -1957,7 +2720,7 @@ spar27_1 <- ggplot(data=Hybrid_30_NQO, aes(x=as.numeric(day), y=rval)) +
         
 spar27_1<-spar27_1 + scale_color_grey() + theme_classic()
 
-loh_table<-Extended9_LOH_table_parents
+loh_table<-Extended10_LOH_table_parents
 loh_table$day <-loh_table$Time
 loh_table$Cycle <-loh_table$day
 loh_tableB <- dplyr::filter(loh_table, Genotype=="Spar")
@@ -1992,7 +2755,7 @@ spar27_3<- ggplot(loh_tableB, aes(fill=Mutation, x=Cycle)) +
           ylab("Relative Frequency")+xlab("Time (Cycle)")+
           scale_fill_manual(values = c("mediumpurple3", "#21908CFF","gray30")) 
         
-data<-dplyr::filter(Extended9_LOH_parents_table_proportion, Replicate==27)
+data<-dplyr::filter(Extended10_LOH_parents_table_proportion, Replicate==27)
         
 spar27_4<- ggplot(data, aes(x=Time, y=percentage, fill=Mutation)) + 
           geom_area(alpha=0.6 , size=1, colour="black",pos = "stack") +
@@ -2038,7 +2801,7 @@ spar29_1 <- ggplot(data=Hybrid_30_NQO, aes(x=as.numeric(day), y=rval)) +
           
 spar29_1<-spar29_1 + scale_color_grey() + theme_classic()
 
-loh_table<-Extended9_LOH_table_parents
+loh_table<-Extended10_LOH_table_parents
 loh_table$day <-loh_table$Time
 loh_table$Cycle <-loh_table$day
 loh_tableB <- dplyr::filter(loh_table, Genotype=="Spar")
@@ -2073,7 +2836,7 @@ spar29_3<- ggplot(loh_tableB, aes(fill=Mutation, x=Cycle)) +
             ylab("Relative Frequency")+xlab("Time (Cycle)")+
             scale_fill_manual(values = c("mediumpurple3", "#21908CFF","gray30")) 
 
-data<-dplyr::filter(Extended9_LOH_parents_table_proportion, Replicate==29)
+data<-dplyr::filter(Extended10_LOH_parents_table_proportion, Replicate==29)
           
 spar29_4<- ggplot(data, aes(x=Time, y=percentage, fill=Mutation)) + 
             geom_area(alpha=0.6 , size=1, colour="black",pos = "stack") +
@@ -2090,30 +2853,30 @@ Figure9<- plot_grid(Fig1A2,Fig1C2,Fig1B2,Fig1D2)
 title <- ggdraw() + draw_label("S. paradoxus Line 29", fontface='bold')
 Figure9<-plot_grid(title,Figure9, ncol=1, rel_heights=c(0.1, 1))
 #################
-############Assemble and save raw Extended Figure 9############
+############Assemble and save raw Extended Figure 10############
 ###Save panels 
-Fig_Extended_9<- plot_grid(Figure1,Figure2,Figure3,Figure6,Figure4,Figure5,Figure7,Figure8,Figure9,nrow=3)
+Fig_Extended_10<- plot_grid(Figure1,Figure2,Figure3,Figure6,Figure4,Figure5,Figure7,Figure8,Figure9,nrow=3)
 
-ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9_raw_low_quality.jpg", units = "cm", device = "jpg",width = 70, height =61, dpi = 300, bg = "white")
-ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9_raw.png", units = "cm", device = "png",width = 70, height =61, dpi = 1000, bg = "white")
-ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9_raw.jpg", units = "cm", device = "jpg",width = 70, height =61, dpi = 1000, bg = "white")
-ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9_raw.svg", units = "cm", device = "svg",width = 70, height =61, dpi = 1000, bg = "white")
-ggsave (plot = Fig_Extended_9, filename = "Extended_Fig9_raw.pdf", units = "cm", device = "pdf",width = 70, height =61, dpi = 1000, bg = "white")
+ggsave (plot = Fig_Extended_10, filename = "Extended_Fig10_raw_low_quality.jpg", units = "cm", device = "jpg",width = 70, height =61, dpi = 300, bg = "white")
+ggsave (plot = Fig_Extended_10, filename = "Extended_Fig10_raw.png", units = "cm", device = "png",width = 70, height =61, dpi = 1000, bg = "white")
+ggsave (plot = Fig_Extended_10, filename = "Extended_Fig10_raw.jpg", units = "cm", device = "jpg",width = 70, height =61, dpi = 1000, bg = "white")
+ggsave (plot = Fig_Extended_10, filename = "Extended_Fig10_raw.svg", units = "cm", device = "svg",width = 70, height =61, dpi = 1000, bg = "white")
+ggsave (plot = Fig_Extended_10, filename = "Extended_Fig10_raw.pdf", units = "cm", device = "pdf",width = 70, height =61, dpi = 1000, bg = "white")
 #################
-############Assemble and save Extended Figure 9############
+############Assemble and save Extended Figure 10############
 #We added some aesthetic modifications so we import it
-gpp <- rasterGrob(Extended9_Sanger)
+gpp <- rasterGrob(Extended10_Sanger)
 
-Extended_Fig9<-plot_grid(gpp)
+Extended_Fig10<-plot_grid(gpp)
 
-ggsave (plot = Extended_Fig9, filename = "Extended_Fig9_low_quality.jpg", units = "cm", device = "jpg",width =72, height =52, dpi = 300, bg = "white")
-ggsave (plot = Extended_Fig9, filename = "Extended_Fig9.png", units = "cm", device = "png",width =72, height =52, dpi = 1000, bg = "white")
-ggsave (plot = Extended_Fig9, filename = "Extended_Fig9.jpg", units = "cm", device = "jpg",width =72, height =52, dpi = 1000, bg = "white")
-ggsave (plot = Extended_Fig9, filename = "Extended_Fig9.svg", units = "cm", device = "svg",width =72, height =52, dpi = 1000, bg = "white")
-ggsave (plot = Extended_Fig9, filename = "Extended_Fig9.pdf", units = "cm", device = "pdf",width =72, height =52, dpi = 1000, bg = "white")
+ggsave (plot = Extended_Fig10, filename = "Extended_Fig10_low_quality.jpg", units = "cm", device = "jpg",width =72, height =52, dpi = 300, bg = "white")
+ggsave (plot = Extended_Fig10, filename = "Extended_Fig10.png", units = "cm", device = "png",width =72, height =52, dpi = 1000, bg = "white")
+ggsave (plot = Extended_Fig10, filename = "Extended_Fig10.jpg", units = "cm", device = "jpg",width =72, height =52, dpi = 1000, bg = "white")
+ggsave (plot = Extended_Fig10, filename = "Extended_Fig10.svg", units = "cm", device = "svg",width =72, height =52, dpi = 1000, bg = "white")
+ggsave (plot = Extended_Fig10, filename = "Extended_Fig10.pdf", units = "cm", device = "pdf",width =72, height =52, dpi = 1000, bg = "white")
 #################
 
-############Figure Extended 10############
+############Figure Extended 11############
 loh_table_day2<-Extended_loh_table_day2
 loh_table_day2<-dplyr::filter(loh_table_day2, Mutation!="White")
 loh_table_day2<-dplyr::filter(loh_table_day2, Mutation!="White NQO")
@@ -2145,8 +2908,9 @@ fdata_LOH <- dplyr::filter(fdata_LOH,Day==2)
 fdata_LOH <- dplyr::filter(fdata_LOH,Mutation!="White")
 fdata_LOH <- na.omit(fdata_LOH)
 fdata_LOH_NQO <- dplyr::filter(fdata_LOH,Condition.y=="NQO_4μM")
-    
-Figure_Extended_A<- fdata_LOH_NQO %>% dplyr::filter(hour<25)%>%
+
+#Data everyone until 23h
+Figure_Extended_A<- fdata_LOH_NQO %>% dplyr::filter(hour<23.5)%>%
   ggplot( aes(y=od,x=hour,group=interaction(Replicate,Mutation,Assay))) +
   scale_shape_identity() +  
   geom_line(aes(col=Mutation, alpha=0.4)) +
@@ -2169,7 +2933,7 @@ Figure_Extended_A<- fdata_LOH_NQO %>% dplyr::filter(hour<25)%>%
         strip.text.y = element_text(size = 12), 
         strip.background = element_rect(fill = "white"))
     
-Figure_Extended_B<- fdata_LOH_NQO %>% dplyr::filter(hour<25)%>%
+Figure_Extended_B<- fdata_LOH_NQO %>% dplyr::filter(hour<23.5)%>%
   ggplot( aes(y=od,x=hour,group=interaction(Replicate,Mutation,Generations,Assay))) +
   scale_shape_identity() +  
   geom_line(aes(col=Mutation, alpha=0.4)) +
@@ -2239,17 +3003,17 @@ FigureE_B<-Extended_loh_table_day2%>% dplyr::filter(Mutation!="White")%>%
 leg <- get_legend(FigureE_B)
     
 #################
-############Assemble and save Extended Figure 10############
+############Assemble and save Extended Figure 11############
 FigA_label<- plot_grid(Figure_Extended_A,labels="a",label_size=32)
 FigB_label<- plot_grid(Figure_Extended_B,labels="b",label_size=32)
 FigC_label<- plot_grid(Figure_Extended_C,labels="c",label_size=32)
-Fig_Extended_Hyb_up <-   plot_grid(FigA_label,FigC_label,nrow=2)
-Fig_Extended_Hyb <-   plot_grid(Fig_Extended_Hyb_up,FigB_label,nrow=1,rel_widths = c(1,0.5))  
-Figure10leg<-plot_grid(leg, Fig_Extended_Hyb,nrow=2,rel_heights = c(0.6,7))
+Fig_Extended_Hyb_up <-plot_grid(FigA_label,FigC_label,nrow=2)
+Fig_Extended_Hyb <-plot_grid(Fig_Extended_Hyb_up,FigB_label,nrow=1,rel_widths = c(1,0.5))  
+Figure11leg<-plot_grid(leg, Fig_Extended_Hyb,nrow=2,rel_heights = c(0.6,7))
     
-ggsave (plot = Figure10leg, filename = "Extended_Fig10_low_quality.jpg", units = "cm", device = "jpg",width = 43, height =25, dpi = 300, bg = "white")
-ggsave (plot = Figure10leg, filename = "Extended_Fig10.png", units = "cm", device = "png",width = 43, height =25, dpi = 1000, bg = "white")
-ggsave (plot = Figure10leg, filename = "Extended_Fig10.jpg", units = "cm", device = "jpg",width = 43, height =25, dpi = 1000, bg = "white")
-ggsave (plot = Figure10leg, filename = "Extended_Fig10.svg", units = "cm", device = "svg",width = 43, height =25, dpi = 1000, bg = "white")
-ggsave (plot = Figure10leg, filename = "Extended_Fig10.pdf", units = "cm", device = "pdf",width = 43, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Figure11leg, filename = "Extended_Fig11_low_quality.jpg", units = "cm", device = "jpg",width = 43, height =25, dpi = 300, bg = "white")
+ggsave (plot = Figure11leg, filename = "Extended_Fig11.png", units = "cm", device = "png",width = 43, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Figure11leg, filename = "Extended_Fig11.jpg", units = "cm", device = "jpg",width = 43, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Figure11leg, filename = "Extended_Fig11.svg", units = "cm", device = "svg",width = 43, height =25, dpi = 1000, bg = "white")
+ggsave (plot = Figure11leg, filename = "Extended_Fig11.pdf", units = "cm", device = "pdf",width = 43, height =25, dpi = 1000, bg = "white")
 #################
