@@ -1,4 +1,4 @@
-#Main Figures of the Manuscript Bautista_2023
+#Main Figures of the Manuscript Bautista_2024
 
 ##Figure 2###
 
@@ -111,7 +111,7 @@ library(vcfR)
 #################
 
 ####Set directory####
-#Define the directory where you save all the data from Bautista_2023
+#Define the directory where you save all the data from Bautista_2024
 setwd("")
 #################
 
@@ -119,10 +119,9 @@ setwd("")
 genomics <- read_csv("2_growth.csv")
 norm_aneu_heatmap <- read.csv("2A_data_aneuploidies_heatmap_fitness_gain.csv")
 norm_aneu <- read.csv("2A_data_aneuploidies.csv")
-B_Table_counts_aneuploidies <- read.csv("2B_Table_counts_aneuploidies.csv")
-C_Table_LOH_Line13<-read.csv("2C_Table_LOH_Line13.csv")
-E_Table_LOH_Percentage<-read.csv("2E_Table_LOH_Percentage.csv")
-F_Table_counts_LOH<-read.csv("2F_Table_counts_LOH.csv")
+B_Table_LOH_Line13<-read.csv("2B_Table_LOH_Line13.csv")
+D_Table_LOH_Percentage<-read.csv("2D_Table_LOH_Percentage.csv")
+E_Table_counts_LOH<-read.csv("2E_Table_counts_LOH.csv")
 #################
 
 ######Figure 2A######
@@ -186,9 +185,9 @@ ghybC  <- g + scale_fill_gradient2(legend_title,low = "darkslateblue", mid = "gr
         legend.title = element_text(size=12),
         legend.position = "top",
         legend.direction = "horizontal") #+ 
-  geom_tile(aes(fill =Normalized_read),height=0.65,size=0.2) 
+geom_tile(aes(fill =Normalized_read),height=0.65,size=0.2) 
 
-  legheatmap <- get_legend(ghybC)
+legheatmap <- get_legend(ghybC)
 
 ghybC  <- g + scale_y_discrete(labels = make_labels, name = "Replicate") +
   scale_fill_gradient2(legend_title,low = "darkslateblue", mid = "gray90", high = "#cc7000", midpoint = 0,limits= c(-2.9,2.9),breaks= c(-2,-1,0,1,2))+
@@ -219,7 +218,16 @@ ghybC  <- g + scale_y_discrete(labels = make_labels, name = "Replicate") +
   theme(legend.title = element_text(angle = 270, vjust= 0.2,hjust= 0.9),
         legend.title.align=3)+
   theme (legend.position="none")
- 
+
+ghybC2  <- ghybC + geom_rect(aes(xmin = 1.5, xmax = 2.5, ymin = 9.5, ymax = 10.5),color = "firebrick4",fill = NA)+
+  geom_rect(aes(xmin = 3.5, xmax = 4.5, ymin = 5.5, ymax = 6.5),color = "firebrick4",fill = NA)+
+  geom_rect(aes(xmin = 27.5, xmax = 28.5, ymin = 3.5, ymax = 4.5),color = "blue4",fill = NA)+
+  geom_rect(aes(xmin = 23.5, xmax = 24.5, ymin = 3.5, ymax = 4.5),color = "blue4",fill = NA)+
+  #geom_rect(aes(xmin = 12.5, xmax = 13.5, ymin = 20.5, ymax = 21.5),color = "firebrick4",fill = NA)+
+  #geom_rect(aes(xmin = 13.5, xmax = 14.5, ymin = 20.5, ymax = 21.5),color = "blue4",fill = NA)+
+  geom_rect(aes(xmin = 14.5, xmax = 15.5, ymin = 21.5, ymax = 22.5),color = "blue4",fill = NA)
+
+
 ghyb <- g_heatmap%>%  dplyr:::filter(Strain=="3Hybrid") 
 ghyb <- ghyb%>%  dplyr:::filter(Type=="Evolved_control") 
 
@@ -250,7 +258,11 @@ ghybA  <- g +
   theme(axis.ticks.x = element_blank(),
         axis.text.x = element_blank())
 
-HYBRID <- plot_grid(ghybA,ghybC, nrow = 2,rel_heights = c(1,1.15))
+
+ghybA2  <- ghybA + geom_rect(aes(xmin = 21.5, xmax = 22.5, ymin = 23.5, ymax = 24.5),color = "firebrick4",fill = NA)
+
+
+HYBRID <- plot_grid(ghybA2,ghybC2, nrow = 2,rel_heights = c(1,1.15))
 
 #S.PARADOXUS
 gspar <- g_heatmap%>%  dplyr:::filter(Strain=="2Spar") 
@@ -299,12 +311,21 @@ gsparC  <- g + scale_y_discrete(labels = make_labels, name = "Replicate") +
         axis.text.y=element_text(size=8))+
   scale_fill_gradient2(low = "darkslateblue", mid = "gray90", high = "#cc7000", midpoint = 0,limits= c(-2.9,2.9),breaks= c(-2,-1,0,1,2))
 
-SPAR <- plot_grid(gsparA,gsparC, nrow = 2,rel_heights = c(1,1.15))
+
+gsparC2<- gsparC+geom_rect(aes(xmin = 12.5, xmax = 13.5, ymin = 3.5, ymax = 4.5),color = "firebrick4",fill = NA)+
+  geom_rect(aes(xmin = 14.5, xmax = 15.5, ymin = 4.5, ymax = 5.5),color = "firebrick4",fill = NA)+
+  geom_rect(aes(xmin = 14.5, xmax = 15.5, ymin = 5.5, ymax = 6.5),color = "firebrick4",fill = NA)+
+  geom_rect(aes(xmin = 14.5, xmax = 15.5, ymin = 7.5, ymax = 8.5),color = "firebrick4",fill = NA)+
+  geom_rect(aes(xmin = 12.5, xmax = 13.5, ymin = 21.5, ymax = 22.5),color = "firebrick4",fill = NA)+
+  #geom_rect(aes(xmin = 12.5, xmax = 13.5, ymin = 20.5, ymax = 21.5),color = "firebrick4",fill = NA)+
+  #geom_rect(aes(xmin = 13.5, xmax = 14.5, ymin = 20.5, ymax = 21.5),color = "blue4",fill = NA)+
+  geom_rect(aes(xmin = 12.5, xmax = 13.5, ymin = 24.5, ymax = 25.5),color = "firebrick4",fill = NA)
+
+SPAR <- plot_grid(gsparA,gsparC2, nrow = 2,rel_heights = c(1,1.15))
 
 #S.CEREVISIAE
 gscer <- g_heatmap%>%  dplyr:::filter(Strain=="1Scer") 
 gscer <- gscer%>%  dplyr:::filter(Type=="Evolved_control") 
-gscer <- gscer%>%  dplyr:::filter(Replicate!=12)
 
 g <- gscer %>% ggplot(aes(y = interaction(Replicate,Strain,fitness_gain_evolved_in_NQ0), as.factor(chrom4))) + facet_grid(Type~., labeller = as_labeller(cond.labs)) 
 g <- g + geom_tile(aes(fill = log2_anc_norm_aneu), color = "white", lwd = .7) +theme(axis.text.x = element_text(angle = 90, hjust = 1)) +ggtitle("Saccharomyces cerevisiae")
@@ -325,7 +346,6 @@ gscerA <- g +scale_y_discrete(labels = make_labels, name = "Line") +theme_bw()+
 
 gscer <- g_heatmap%>%  dplyr:::filter(Strain=="1Scer") 
 gscer <- gscer%>%  dplyr:::filter(Type=="Evolved_NQO")
-gscer <- gscer%>%  dplyr:::filter(Replicate!=12)
 
 g <- gscer %>% ggplot(aes(y = interaction(Replicate,Strain,fitness_gain_evolved_in_NQ0), as.factor(chrom4))) + facet_grid(Type~., labeller = as_labeller(cond.labs)) 
 g <- g + geom_tile(aes(fill = log2_anc_norm_aneu), color = "white", lwd = .7) +theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
@@ -357,105 +377,71 @@ gscerC  <- g +   scale_y_discrete(labels = make_labels, name = "Line") +
   xlab("Line")+
   scale_fill_gradient2(low = "darkslateblue", mid = "gray90", high = "#cc7000", midpoint = 0,limits= c(-2.9,2.9),breaks= c(-2,-1,0,1,2))
 
-SCER <- plot_grid(gscerA,gscerC, nrow = 2,rel_heights = c(1,1.15))
+
+gscerC2<-gscerC+geom_rect(aes(xmin = 14.5, xmax = 15.5, ymin = 0.5, ymax = 1.5),color = "firebrick4",fill = NA)+
+  geom_rect(aes(xmin = 1.5, xmax = 2.5, ymin = 4.5, ymax = 5.5),color = "firebrick4",fill = NA)+
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = 25.5, ymax = 26.5),color = "firebrick4",fill = NA)
+  
+SCER <- plot_grid(gscerA,gscerC2, nrow = 2,rel_heights = c(1,1.15))
+
+
+#create new legend
+data <- data.frame(
+  x = c(1, 3),
+  y = c("Chromosome gain","Chromosome loss"))
+
+# Create the plot
+leg2 <-ggplot(data, aes(x = x, y = y,col=as.factor(y))) +
+  geom_point(shape=22,size=6)+
+  theme(legend.direction ="horizontal")+
+  scale_colour_manual(values=c("firebrick4","blue4"))+
+  geom_rect(xmin = 0.5, xmax = 1.5, ymin = 4.5, ymax = 5.5,, color = "firebrick4", fill = "white") +
+  geom_rect(xmin = 1.5, xmax = 2.5, ymin = 4.5, ymax = 5.5,, color = "blue4", fill = "white") +
+  theme_bw()+
+  theme(axis.text = element_text(face="bold"))+
+  theme(axis.title = element_blank(),
+        strip.text = element_text(face = "bold", size = 15),
+        strip.background = element_blank()) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  xlab("Chromosome")+
+  theme(axis.text.y=element_text(size=8),
+        axis.text.x=element_text(size=9))+
+  theme(plot.title = element_text(hjust = 0.5, size=12, face = "bold"))+
+  theme(legend.title = element_text(angle = 0),#, vjust= 0.2,hjust= 0.9),
+        legend.title.align=3)+
+  theme(legend.key.size = unit(0.4, 'cm'), #change legend key size
+        legend.key.height = unit(0.4, 'cm'), #change legend key height
+        legend.key.width = unit(0.6, 'cm'), #change legend key width
+        legend.title = element_text(size=8), #change legend title font size
+        legend.text = element_text(size=7))+
+  theme(axis.title = element_text(size=15, face = "bold"),
+        axis.text = element_text(size=11),
+        strip.text = element_text(face = "bold", size = 14),
+        strip.background = element_blank(),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12),
+        legend.position = "top",
+        legend.direction = "horizontal")+
+  theme(legend.title=element_blank())
+
+
+legheatmap2 <- get_legend(leg2)
+
 
 # Combine the panels to create a merged plot
 Fig2Afitness <- plot_grid(SCER,SPAR,HYBRID, nrow = 1,rel_widths = c(4,4,8))
 Fig2A<- Fig2Afitness 
 
-Fig2Afitness2 <- plot_grid(legheatmap,Fig2Afitness, nrow=2,rel_heights =  c(0.4,5))
+legheatmap3<-plot_grid(legheatmap,legheatmap2)
+Fig2Afitness2 <- plot_grid(legheatmap3,Fig2Afitness, nrow=2,rel_heights =  c(0.4,5))
 Fig2A<- Fig2Afitness2
 #################
 
 ######Figure 2B######
-###Boxplot aneuploidies
-#Define some elements for the graph
-toexpr<-function(x) {
-  getfun <- function(x) {
-    ifelse(x=="Hybrid", "plain", "italic")
-  }
-  as.expression(unname(Map(function(f,v) substitute(f(v), list(f=as.name(f), v=as.character(v))), getfun(x), x)))
-}
-
-#Fisher test
-scer <- dplyr:::filter(B_Table_counts_aneuploidies,Strain=="1Scer")
-spar <- dplyr:::filter(B_Table_counts_aneuploidies,Strain=="2Spar")
-hyb <- dplyr:::filter(B_Table_counts_aneuploidies,Strain=="3Hybrid")
-
-#For S.cerevisiae
-#        With aneu    Without aneu
-#control    0               29
-#NQO        3               26
-m_scer <- matrix(c(0,3,29,26),nrow = 2,ncol=2,byrow=FALSE)
-fisher.test(m_scer)
-#p-value: 0.2368
-
-#For S.paradoxus
-#        With aneu    Without aneu
-#control   0               30
-#NQO       6               24
-m_spar <- matrix(c(0,6,30,24),nrow = 2,ncol=2,byrow=FALSE)
-fisher.test(m_spar)
-#p-value: 0.02372
-
-#For Hybrid
-#        With aneu    Without aneu
-#control   1               25
-#NQO       4               22
-m_hyb <- matrix(c(1,4,25,22),nrow = 2,ncol=2,byrow=FALSE)
-fisher.test(m_hyb)
-#p-value: 0.3497
-
-B_Table_counts_aneuploidies_filtered <- B_Table_counts_aneuploidies %>%
-  dplyr:::filter(!(Strain=="1Scer" & Replicate==16))
-B_Table_counts_aneuploidies_filtered <- B_Table_counts_aneuploidies_filtered %>%
-  dplyr:::filter(!(Strain=="3Hybrid" & Replicate==1))
-B_Table_counts_aneuploidies_filtered <- B_Table_counts_aneuploidies_filtered %>%
-  dplyr:::filter(!(Strain=="3Hybrid" & Replicate==10))
-B_Table_counts_aneuploidies_filtered <- B_Table_counts_aneuploidies_filtered %>%
-  dplyr:::filter(!(Strain=="3Hybrid" & Replicate==21))
-B_Table_counts_aneuploidies_filtered <- B_Table_counts_aneuploidies_filtered %>%
-  dplyr:::filter(!(Strain=="3Hybrid" & Replicate==25))
-
-Fig2B <- ggplot(B_Table_counts_aneuploidies_filtered, aes(x = interaction(Type,Strain), y = counts,fill=Strain))+
-  geom_boxplot(outlier.shape = NA,aes(fill=as.factor(Strain)))+
-  geom_jitter(colour="black",pch=21,height = 0, size=3,alpha=0.7, aes(fill=as.factor(Strain)))+
-  ylab("Number of \n aneuploidies / line")+
-  xlab("Genotype")+
-  scale_fill_manual(values=c("green4", "dodgerblue1", "#FF9999"), 
-                    labels = toexpr(c("S. cerevisiae", "S. paradoxus", "Hybrid"))) +
-  scale_x_discrete("", labels=c("Evolved in \n control","Evolved in \n UV mimetic",
-                                "Evolved in \n control","Evolved in \n UV mimetic",
-                                "Evolved in \n control","Evolved in \n UV mimetic"))+
-  theme_bw(base_size=24) +
-  geom_segment(aes(x=3, xend=4, y=1.3, yend=1.3)) +
-  annotate("text",
-           y = c(1.45),
-           x = c(3.5),
-           label = c("p < 0.05"),
-           family = "", fontface = 3, size=4) +
-  scale_y_continuous(breaks = c(0, 1, 2))+
-  theme_bw(base_size=24) +
-  theme(strip.background = element_blank(),
-        panel.background = element_blank(),
-        strip.text.x = element_blank(),
-        plot.title = element_text(size=15, hjust=0, face = "bold", color="black"),
-        axis.text.x = element_text(size = 11, color="black",face = "bold"),
-        axis.text.y = element_text(size = 13, color="black"),
-        axis.title = element_text(size = 15,face="bold"),
-        legend.position = "top",
-        legend.direction = "horizontal",
-        legend.text = element_text(size=14),
-        legend.title = element_text(size=14),
-        legend.margin = margin(-10, -10,-6,-2))+
-  guides(fill = guide_legend(title = " "))
-
-#################
-
-######Figure 2C######
 ###Example t-LOH on line 13
 legend_title <- "Relative Read Depth"
-Fig2Cb <-C_Table_LOH_Line13%>% ggplot(aes(x = as.numeric(start2),y = as.factor(chrom4),fill=Normalized_read)) + 
+Fig2Bb <-B_Table_LOH_Line13%>% ggplot(aes(x = as.numeric(start2),y = as.factor(chrom4),fill=Normalized_read)) + 
   theme_prism()+
   theme_bw(base_size=24) +
   geom_tile(aes(fill =Normalized_read),height=0.65,size=0.2) +
@@ -498,20 +484,20 @@ Fig2Cb <-C_Table_LOH_Line13%>% ggplot(aes(x = as.numeric(start2),y = as.factor(c
         strip.background = element_blank())+
   theme(legend.position="none")
 
-Fig2C <- plot_grid(legheatmap,Fig2Cb, nrow=2,rel_heights =  c(0.29,5))
+Fig2B <- plot_grid(legheatmap,Fig2Bb, nrow=2,rel_heights =  c(0.29,5))
+#################
+
+######Figure 2C######
+###t-LOH scheme
+img <-image_read_pdf("Fig2C.pdf")
+gpp <- rasterGrob(img, interpolate = TRUE)
+Fig2C <- plot_grid(gpp)
 #################
 
 ######Figure 2D######
-###t-LOH scheme
-img <-image_read_pdf("Fig2D.pdf")
-gpp <- rasterGrob(img, interpolate = TRUE)
-Fig2D <- plot_grid(gpp)
-#################
-
-######Figure 2E######
 #Percentage of LOH across genomes
 legend_title <- "% of hybrid lines \n bearing LOH"   
-Fig2E <- E_Table_LOH_Percentage %>% dplyr:::filter(genome_parental=="Spar") %>% ggplot(aes(x = as.numeric(start2),y = as.factor(chrom4),fill=Percentage)) + 
+Fig2D <- D_Table_LOH_Percentage %>% dplyr:::filter(genome_parental=="Spar") %>% ggplot(aes(x = as.numeric(start2),y = as.factor(chrom4),fill=Percentage)) + 
   geom_tile(aes(fill =Percentage,height=0.65)) +
   scale_fill_gradient2(legend_title,low = "wheat", mid="indianred4",high="red3",midpoint = 50, limits = c(0, 100))+
   scale_y_discrete(breaks=c(2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32),
@@ -540,18 +526,72 @@ Fig2E <- E_Table_LOH_Percentage %>% dplyr:::filter(genome_parental=="Spar") %>% 
         legend.direction = "horizontal",
         legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
         strip.text = element_blank(),
-        strip.background = element_blank())
+        strip.background = element_blank())+
+  theme(legend.spacing.x = unit(0.1, 'cm'),
+        legend.text = element_text(margin = margin(t = 5)))
+
+
+leg_percentage <- get_legend(Fig2D)
+
+Fig2D <- D_Table_LOH_Percentage %>% dplyr:::filter(genome_parental=="Spar") %>% ggplot(aes(x = as.numeric(start2),y = as.factor(chrom4),fill=Percentage)) + 
+  geom_tile(aes(fill =Percentage,height=0.65)) +
+  scale_fill_gradient2(legend_title,low = "wheat", mid="indianred4",high="red3",midpoint = 50, limits = c(0, 100))+
+  scale_y_discrete(breaks=c(2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32),
+                   labels=c("chrI","chrII",
+                            "chrIII","chrIV",
+                            "chrV","chrVI",
+                            "chrVII","chrVIII",
+                            "chrIX","chrX",
+                            "chrXI","chrXII",
+                            "chrXIII","chrXIV",
+                            "chrXV","chrXVI"),
+                   limits=rev)+
+  scale_x_continuous(breaks=c(0,500000,1000000,1500000),
+                     labels=c(0,500,1000,1500))+
+  xlab("Coordinate (kbp)")+
+  ylab("Chromosome")+
+  theme_bw(base_size=24) +
+  theme(legend.key.size = unit(0.4, 'cm'), 
+        legend.key.height = unit(0.4, 'cm'), 
+        legend.key.width = unit(0.6, 'cm'),
+        axis.title = element_text(size=15, face = "bold"),
+        axis.text = element_text(size=11),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12),
+        legend.position = "top",
+        legend.direction = "horizontal",
+        legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
+        strip.text = element_blank(),
+        strip.background = element_blank())+
+  theme(legend.position = "none")
+
+Fig2Dleg <- plot_grid(leg_percentage,Fig2D, nrow=2,rel_heights =  c(0.45,5))
 #################
 
-######Figure 2F######
+######Figure 2E######
 #Boxplot LOH control vs UV mimetic conditions
-Fig2F <- ggplot(F_Table_counts_LOH, aes(x = Type, y = new_counts))+
+
+#Exclude triploids
+control<-E_Table_counts_LOH %>% filter(Type=="Evolved_control")
+control <- control %>% filter (Replicate!=20)
+control <- control %>% filter (Replicate!=23)
+control <- control %>% filter (Replicate!=26)
+control <- control %>% filter (Replicate!=27)
+control <- control %>% filter (Replicate!=28)
+
+
+nqo<-E_Table_counts_LOH %>% filter(Type=="Evolved_NQO")
+nqo <- nqo %>% filter (Replicate!=26)
+nqo <- nqo %>% filter (Replicate!=27)
+nqo <- nqo %>% filter (Replicate!=28)
+
+E_Table_counts_LOH<- rbind(nqo, control)
+
+wilcox.test(nqo$new_counts, control$new_counts)
+
+Fig2E <- ggplot(E_Table_counts_LOH, aes(x = Type, y = new_counts))+
   theme_prism() + 
   geom_violin(colour="black",pch=21,size=1,alpha=0.5, fill="#FF9999",trim=TRUE)+#width=1.15)+
-  #geom_dotplot(binaxis= "y",
-   #            stackdir = "center",
-    #           dotsize = 0.4,
-     #          fill = "#FF9999") +
   theme(legend.position = "bottom",
       legend.direction = "horizontal")+
   geom_segment(aes(x=1, xend=2, y=3.2, yend=3.2)) +
@@ -574,29 +614,26 @@ Fig2F <- ggplot(F_Table_counts_LOH, aes(x = Type, y = new_counts))+
         axis.text.y = element_text(size = 13, color="black"),
         axis.title = element_text(size = 15,face="bold"),
         axis.title.x=element_blank())+
-  scale_x_discrete("", labels=c("Evolved in \n control","Evolved in \n UV mimetic")) 
+  scale_x_discrete("", labels=c("Evolved in \n control","  Evolved in \n UV mimetic")) 
 #################
 
 ############Assemble and save Figure 2############
 Fig2A2<- plot_grid(Fig2A,labels="a",label_size=20)
 Fig2B2<- plot_grid(Fig2B,labels="b",label_size=20)
 Fig2C2<- plot_grid(Fig2C,labels="c",label_size=20)
-Fig2D2<- plot_grid(Fig2D,labels="d",label_size=20)
+Fig2D2<- plot_grid(Fig2Dleg,labels="d",label_size=20)
 Fig2E2<- plot_grid(Fig2E,labels="e",label_size=20)
-Fig2F2<- plot_grid(Fig2F,labels="f",label_size=20)
 
-Fig2CF <- plot_grid(Fig2C2,Fig2F2,nrow=2,rel_heights =c(3,1.4))
-Fig2DE <- plot_grid(Fig2D2,Fig2E2,nrow=1)
-Fig2BDE<- plot_grid(Fig2B2,Fig2DE,nrow=2, rel_heights =c(1,2))
-Fig2BCDEF<- plot_grid(Fig2BDE,Fig2CF,nrow=1, rel_widths  =c(2,1))
-Fig2<- plot_grid(Fig2A2,Fig2BCDEF,nrow=2, rel_heights =c(1.48,2))
+Fig2DE <- plot_grid(Fig2D2,Fig2E2,nrow=2,rel_heights =c(2.5,1.4))
+Fig2BC <- plot_grid(Fig2B2,Fig2C2,nrow=1)
+Fig2BBCDE<- plot_grid(Fig2BC,Fig2DE,nrow=1, rel_widths  =c(2,1))
+Fig2<- plot_grid(Fig2A2,Fig2BBCDE,nrow=2, rel_heights =c(2,2))
+
 
 #Save the image in the previously set working directory
-ggsave (plot = Fig2, filename = "Bautista2023_Figure2_low_quality.jpg", units = "cm", device = "jpg",width =35, height =45.3, dpi = 300,bg = "white")
-ggsave (plot = Fig2, filename = "Bautista2023_Figure2.png", units = "cm", device = "png",width =35, height =45.3, dpi = 1000,bg = "white")
-ggsave (plot = Fig2, filename = "Bautista2023_Figure2.jpg", units = "cm", device = "jpg",width =35, height =45.3, dpi = 1000,bg = "white")
-ggsave (plot = Fig2, filename = "Bautista2023_Figure2.svg", units = "cm", device = "svg",width =35, height =45.3, dpi = 1000,bg = "white")
-ggsave (plot = Fig2, filename = "Bautista2023_Figure2.pdf", units = "cm", device = "pdf",width =35, height =45.3, dpi = 1000,bg = "white")
+ggsave (plot = Fig2, filename = "Bautista2024_Figure2_low_quality.jpg", units = "cm", device = "jpg",width =33, height =35, dpi = 300,bg = "white")
+ggsave (plot = Fig2, filename = "Bautista2024_Figure2.png", units = "cm", device = "png",width =33, height =35, dpi = 1000,bg = "white")
+ggsave (plot = Fig2, filename = "Bautista2024_Figure2.jpg", units = "cm", device = "jpg",width =33, height =35, dpi = 1000,bg = "white")
+ggsave (plot = Fig2, filename = "Bautista2024_Figure2.svg", units = "cm", device = "svg",width =33, height =35, dpi = 1000,bg = "white")
+ggsave (plot = Fig2, filename = "Bautista2024_Figure2.pdf", units = "cm", device = "pdf",width =33, height =35, dpi = 1000,bg = "white")
 #################
-
-
